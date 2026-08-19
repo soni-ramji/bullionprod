@@ -1,10 +1,74 @@
+import 'dart:convert';
+
+import 'package:bullionprod/environment.dart';
 import 'package:bullionprod/screen/bottombar.dart';
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
 
+class Commodityrate extends StatefulWidget {
 
-class Commodityrate extends StatelessWidget {
   const Commodityrate({super.key});
 
+
+  @override
+  State<Commodityrate> createState() => _CommodityrateState();
+}
+
+class _CommodityrateState extends State<Commodityrate> {
+  double gold24k = 0;
+  double gold22k = 0;
+  double gold18k = 0;
+  double silverrate = 0;
+  @override
+  void initState() {
+    super.initState();
+       getCommodityRate();
+  }
+
+  Future<void> getCommodityRate() async {
+    String url = AppConfig.GET_COMMODITY_RATE;
+    try {
+
+
+      final response = await http
+          .get(
+        Uri.parse(url),
+        headers: <String, String>{
+          'Content-Type': 'application/json; charset=UTF-8',
+        },
+
+      )
+          .timeout(const Duration(seconds: 15));
+      // completer.complete(response);
+      if (response.statusCode == 200) {
+        final decoded = json.decode(response.body);
+
+
+      setState(() {
+          gold24k = decoded['goldsell'];
+          gold22k = gold24k*22/24;
+          gold18k = gold24k*18/24;
+          silverrate = decoded['silversell'];
+        });
+      } else {
+        // Handle error response
+        print('Error: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('Exception occurred: $e');
+    }
+  }
+
+  //  Future<void> getCommodityRates() async {
+  //   // Simulate fetching commodity rates from an API or database
+  //   await Future.delayed(const Duration(seconds: 2));
+  //   setState(() {
+  //     gold24k = 142000;
+  //     gold22k = 130000;
+  //     gold18k = 110000;
+  //     silverrate = 60000; // Example silver rate
+  //   });
+  // }
   @override
   Widget build(BuildContext context) {
     const ink = Color(0xFF102D38);
@@ -93,11 +157,14 @@ class Commodityrate extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 18),
-            _GoldRateTile(label: '24K Gold Rate', value: '₹142000'),
+            _GoldRateTile(label: '24K Gold Rate', value: '${gold24k.toStringAsFixed(2)}'),
             const Divider(height: 1),
-            _GoldRateTile(label: '22K Gold Rate', value: '₹130000'),
+            _GoldRateTile(label: '22K Gold Rate', value: '${gold22k.toStringAsFixed(2)}'),
             const Divider(height: 1),
-            _GoldRateTile(label: '18K Gold Rate', value: '₹110000'),
+            _GoldRateTile(label: '18K Gold Rate', value: '${gold18k.toStringAsFixed(2)}'),
+            const SizedBox(height: 18),
+            const Divider(height: 1),
+            _GoldRateTile(label: 'Silver Per Kg', value: '${silverrate.toStringAsFixed(2)}'),
             const SizedBox(height: 18),
             Container(
               padding: const EdgeInsets.all(16),

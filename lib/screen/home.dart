@@ -347,7 +347,7 @@ class _HomeScreenState extends State<HomeScreen> {
       log(e.message ?? 'TimeoutException occurred');
       _showErrorSnackBar('Server is down or not responding. Please try again.');
     } on SocketException {
-      _showErrorSnackBar('Network is down. Please check internet connection.');
+        _showErrorSnackBar('Network is down. Please check internet connection.');
     } on http.ClientException {
       _showErrorSnackBar('Cannot connect to server. Please check network.');
     } catch (e) {

@@ -2,11 +2,11 @@
 // Use `--dart-define=ENV=prod` when building for production.
 
 class AppConfig {
-  static const String env = String.fromEnvironment('ENV', defaultValue: 'dev');
+  static const String env = String.fromEnvironment('ENV', defaultValue: 'prod');
 
-   static const String _devBase = 'http://192.168.0.2:8090/bullionadmin';
-   static const String _prodBase = 'http://192.168.29.115:8090/bullionadmin';
-  // static const String _devBase = 'https://c48pz40q74.execute-api.us-east-1.amazonaws.com/dev';
+   //static const String _devBase = 'http://192.168.0.2:8090/bullionadmin';
+   static const String _prodBase = 'http://192.168.29.140:8090/bullionadmin';
+   static const String _devBase = 'https://c48pz40q74.execute-api.us-east-1.amazonaws.com/dev';
   // static const String _prodBase = 'http://127.0.0.1:8086/bullionadmin';
 
   static String get baseUrl => env == 'prod' ? _prodBase : _devBase;
@@ -26,5 +26,7 @@ class AppConfig {
   static String get GET_PRODUCTS => '$baseUrl/tdproduct/listallformobile';
   static String get GET_PRODUCT => '$baseUrl/tdproduct/list';
 
-  static String get GET_COMMODITY_RATE => '$baseUrl/commodity/getcommodities';
+  static String get GET_COMMODITY_RATE => '$baseUrl/commodity/getcommoditiesrate';
+
+
 }
