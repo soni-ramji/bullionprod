@@ -707,6 +707,11 @@ class _ProductScreenState extends State<ProductScreen> {
                 Breadcrumb(
                   items: [
                     BreadcrumbItem('Home', onTap: () {
+                      // Close any open popup routes (modal sheets, dialogs) first
+                      try {
+                        Navigator.of(context).popUntil((route) => route is! PopupRoute);
+                      } catch (_) {}
+
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (_) => const HomeScreen()),
                         (route) => false,
