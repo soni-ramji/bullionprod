@@ -35,17 +35,12 @@ class _BottombarState extends State<Bottombar> {
         onTap: (index) {
           logger.d('Selected index: $index');
           setState(() => _selectedNavIndex = index);
-          // Close any open popup routes (modal bottom sheets, dialogs) before navigating
-          try {
-            Navigator.of(context).popUntil((route) => route is! PopupRoute);
-          } catch (_) {}
-
           if (index == 4) {
             Navigator.push(
                 context,
                 MaterialPageRoute(
                     builder: (context) => const LoginScreen()));
-          } else if (index == 0) {
+          }else if(index == 0){
             Navigator.push(
                 context,
                 MaterialPageRoute(
