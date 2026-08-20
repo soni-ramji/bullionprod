@@ -32,7 +32,7 @@ class Breadcrumb extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final defaultStyle = textStyle ?? Theme.of(context).textTheme.bodyText2!;
+    final defaultStyle = textStyle ?? Theme.of(context).textTheme.bodyMedium ?? const TextStyle();
 
     final children = <Widget>[];
 
