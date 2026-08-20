@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:bullionprod/screen/home.dart';
 import 'package:bullionprod/screen/login_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
@@ -39,6 +40,11 @@ class _BottombarState extends State<Bottombar> {
                 context,
                 MaterialPageRoute(
                     builder: (context) => const LoginScreen()));
+          }else if(index == 0){
+            Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => const HomeScreen()));
           }
         },
         items: [
@@ -70,6 +76,19 @@ class _BottombarState extends State<Bottombar> {
 
   @override
   Widget build(BuildContext context) {
-    return _buildBottomNavBar();
+    return Stack(
+      children: [
+        _buildBottomNavBar(),
+        Positioned(
+          right: 8,
+          bottom: 6,
+          child: const Text(
+            'THE TD Software : +91 8800634100',
+            style: TextStyle(fontSize: 11, color: Colors.black),
+          ),
+        ),
+      ],
+    );
   }
 }
+
