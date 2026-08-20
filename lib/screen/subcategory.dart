@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:bullionprod/widget/breadcrumb.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -220,7 +221,17 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                //_buildHeaderCard(),
+                Breadcrumb(
+                  items: [
+                    BreadcrumbItem('Home', onTap: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                            (route) => false,
+                      );
+                    }),
+                    BreadcrumbItem(widget.categoryName),
+                  ],
+                ),
                 _buildSearchBar(),
                 const SizedBox(height: 12),
                 Expanded(
@@ -399,6 +410,8 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                 builder: (_) => ProductScreen(
                   subcategoryId: subcatId,
                   subcategoryName: name,
+                  categoryId: widget.categoryId,
+                  categoryName: widget.categoryName,
                 ),
               ),
             );

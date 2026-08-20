@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:bullionprod/screen/bottombar.dart';
+import 'package:bullionprod/screen/subcategory.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -14,10 +15,12 @@ import '../widget/breadcrumb.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen(
-      {super.key, required this.subcategoryId, required this.subcategoryName});
+      {super.key, required this.subcategoryId, required this.subcategoryName, required this.categoryId, required this.categoryName});
 
   final int subcategoryId;
   final String subcategoryName;
+  final int categoryId;
+  final String categoryName;
 
   @override
   State<ProductScreen> createState() => _ProductScreenState();
@@ -707,6 +710,12 @@ class _ProductScreenState extends State<ProductScreen> {
                       Navigator.of(context).pushAndRemoveUntil(
                         MaterialPageRoute(builder: (_) => const HomeScreen()),
                         (route) => false,
+                      );
+                    }),
+                    BreadcrumbItem(widget.categoryName, onTap: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) =>  SubCategoryScreen(categoryId: widget.categoryId, categoryName: widget.categoryName)),
+                            (route) => false,
                       );
                     }),
                     BreadcrumbItem(widget.subcategoryName),

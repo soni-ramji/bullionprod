@@ -2,7 +2,7 @@
 // Use `--dart-define=ENV=prod` when building for production.
 
 class AppConfig {
-  static const String env = String.fromEnvironment('ENV', defaultValue: 'prod');
+  static const String env = String.fromEnvironment('ENV', defaultValue: 'dev');
 
    //static const String _devBase = 'http://192.168.0.2:8090/bullionadmin';
    static const String _prodBase = 'http://192.168.29.140:8090/bullionadmin';

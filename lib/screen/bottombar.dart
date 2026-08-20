@@ -24,7 +24,7 @@ class _BottombarState extends State<Bottombar> {
         color: Colors.white,
       ),
       child: BottomNavigationBar(
-        backgroundColor: Colors.white,
+        backgroundColor: const Color(0xFF5C4300),
         elevation: 0,
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedNavIndex,
@@ -84,7 +84,7 @@ class _BottombarState extends State<Bottombar> {
           bottom: 6,
           child: const Text(
             'THE TD Software : +91 8800634100',
-            style: TextStyle(fontSize: 11, color: Colors.black),
+            style: TextStyle(fontSize: 12, color: Colors.white),
           ),
         ),
       ],
