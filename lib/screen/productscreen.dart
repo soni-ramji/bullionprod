@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import '../app_shopping_state.dart';
 import '../environment.dart';
 import 'home.dart';
+import '../widget/breadcrumb.dart';
 
 class ProductScreen extends StatefulWidget {
   const ProductScreen(
@@ -700,6 +701,18 @@ class _ProductScreenState extends State<ProductScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
+                Breadcrumb(
+                  items: [
+                    BreadcrumbItem('Home', onTap: () {
+                      Navigator.of(context).pushAndRemoveUntil(
+                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                        (route) => false,
+                      );
+                    }),
+                    BreadcrumbItem(widget.subcategoryName),
+                  ],
+                ),
+                const SizedBox(height: 8),
                 _buildSearchBar(),
                 const SizedBox(height: 16),
                 Expanded(
@@ -876,6 +889,8 @@ class _ProductScreenState extends State<ProductScreen> {
   }
 
   Widget _buildProductCard(Map<String, dynamic> item) {
+    const ink = Color(0xFF102D38);
+    const gold = Color(0xFFD39743);
     final name = _readString(item, ['prodname', 'name']);
     final imageUrl = _readImageUrl(item);
     final karatPurity = _readDouble(item, ['karatpurity', 'karatPurity']);
@@ -898,6 +913,7 @@ class _ProductScreenState extends State<ProductScreen> {
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
+
           Expanded(
             flex: 4,
             child: MouseRegion(
