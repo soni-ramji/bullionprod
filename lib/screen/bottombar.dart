@@ -79,6 +79,7 @@ class _BottombarState extends State<Bottombar> {
     return Stack(
       children: [
         _buildBottomNavBar(),
+        SizedBox(height: 3,),
         Positioned(
           right: 8,
           bottom: 6,
