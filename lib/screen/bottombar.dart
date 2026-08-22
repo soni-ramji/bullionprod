@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:bullionprod/screen/home.dart';
 import 'package:bullionprod/screen/login_screen.dart';
 import 'package:flutter/material.dart';
@@ -23,7 +21,9 @@ class _BottombarState extends State<Bottombar> {
         border: Border(top: BorderSide(color: Colors.grey[200]!)),
         color: Colors.white,
       ),
-      child: BottomNavigationBar(
+      child:
+
+      BottomNavigationBar(
         backgroundColor: const Color(0xFF5C4300),
         elevation: 0,
         type: BottomNavigationBarType.fixed,
@@ -76,19 +76,27 @@ class _BottombarState extends State<Bottombar> {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        _buildBottomNavBar(),
-        SizedBox(height: 3,),
-        Positioned(
-          right: 8,
-          bottom: 6,
-          child: const Text(
-            'THE TD Software : +91 8800634100',
-            style: TextStyle(fontSize: 12, color: Colors.white),
-          ),
-        ),
-      ],
+    return Container(
+      color: const Color(0xFF5C4300),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _buildBottomNavBar(),
+          // const Padding(
+          //   padding: EdgeInsets.only(bottom: 2, top: 0),
+          //   child: Text(
+          //     'THE TD Software : +91 8800634100',
+          //     style: TextStyle(
+          //       fontSize: 11,
+          //       color: Color(0xFFD4AF37),
+          //       fontWeight: FontWeight.w600,
+          //       letterSpacing: 0.3,
+          //     ),
+          //     textAlign: TextAlign.right,
+          //   ),
+          // ),
+        ],
+      ),
     );
   }
 }

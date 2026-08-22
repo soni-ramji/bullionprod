@@ -4,6 +4,8 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:bullionprod/widgets/circular_network_image.dart';
 import 'package:bullionprod/app_shopping_state.dart';
 import 'package:bullionprod/app_scaffold_messenger.dart';
 import 'package:bullionprod/environment.dart';
@@ -12,6 +14,7 @@ import 'package:bullionprod/model/ProductModel.dart';
 import 'package:bullionprod/screen/bottombar.dart';
 import 'package:bullionprod/screen/commodityrate.dart';
 import 'package:bullionprod/screen/contactus.dart';
+import 'package:bullionprod/screen/login_screen.dart';
 import 'package:bullionprod/screen/subcategory.dart';
 import 'package:http/http.dart' as http;
 
@@ -27,6 +30,8 @@ class _HomeScreenState extends State<HomeScreen> {
   List<ProductModel> filteredProducts = [];
   final AppShoppingState _shoppingState = AppShoppingState.instance;
   List<CategoryModel> allcategories = [];
+  bool _isLoadingCategories = true;
+  bool _isLoadingProducts = true;
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _categorySectionKey = GlobalKey();
   final GlobalKey _productsSectionKey = GlobalKey();
@@ -34,13 +39,22 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedCategory = 0;
   int _selectedNavIndex = 0;
   final TextEditingController _searchController = TextEditingController();
+  late final Future<void> _homeDataFuture;
+
   @override
   void initState() {
     super.initState();
     _shoppingState.addListener(_onShoppingStateChanged);
-    getAllCategory();
-    gerAllProducts();
+    _homeDataFuture = _loadHomeData();
   }
+
+  Future<void> _loadHomeData() async {
+    await Future.wait<void>([
+      getAllCategory(),
+      gerAllProducts(),
+    ]);
+  }
+
 
   @override
   void dispose() {
@@ -81,6 +95,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Future<void> gerAllProducts() async {
     try {
+      if (mounted) setState(() => _isLoadingProducts = true);
       List<ProductModel> allProductss = [];
       String url = AppConfig.GET_PRODUCTS;
 
@@ -203,6 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           allproducts = allProductss;
           filteredProducts = List<ProductModel>.from(allProductss);
+          _isLoadingProducts = false;
           _applyProductSearch(_searchController.text);
           // _stockImageUrls
           //   ..clear()
@@ -210,17 +226,22 @@ class _HomeScreenState extends State<HomeScreen> {
           log('allProductss is ${allproducts.length}');
         });
       } else {
+        if (mounted) setState(() => _isLoadingProducts = false);
         _showErrorSnackBar(
           'Unable to load categories. Server error (${response.statusCode}).',
         );
       }
     } on TimeoutException {
+      if (mounted) setState(() => _isLoadingProducts = false);
       _showErrorSnackBar('Server is down or not responding. Please try again.');
     } on SocketException {
+      if (mounted) setState(() => _isLoadingProducts = false);
       _showErrorSnackBar('Network is down. Please check internet connection.');
     } on http.ClientException {
+      if (mounted) setState(() => _isLoadingProducts = false);
       _showErrorSnackBar('Cannot connect to server. Please check network.');
     } catch (e) {
+      if (mounted) setState(() => _isLoadingProducts = false);
       _showErrorSnackBar('Server is down. Please try again later.');
       log('getAllCategories error: $e');
     }
@@ -229,6 +250,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> getAllCategory() async {
     final completer = Completer<Object>();
     try {
+      setState(() { _isLoadingCategories = true; });
       List<CategoryModel> allCategories = [];
       String url = AppConfig.GET_CATEGORY;
       log('Fetching categories from URL: $url');
@@ -333,24 +355,30 @@ class _HomeScreenState extends State<HomeScreen> {
         if (!mounted) return;
         setState(() {
           allcategories = allCategories;
+          _isLoadingCategories = false;
           // _stockImageUrls
           //   ..clear()
           //   ..addAll(imageMap);
           log('allCategories is ${allCategories.length}');
         });
       } else {
+        if (mounted) setState(() { _isLoadingCategories = false; });
         _showErrorSnackBar(
           'Unable to load categories. Server error (${response.statusCode}).',
         );
       }
     } on TimeoutException catch (e) {
       log(e.message ?? 'TimeoutException occurred');
+      if (mounted) setState(() { _isLoadingCategories = false; });
       _showErrorSnackBar('Server is down or not responding. Please try again.');
     } on SocketException {
+      if (mounted) setState(() { _isLoadingCategories = false; });
         _showErrorSnackBar('Network is down. Please check internet connection.');
     } on http.ClientException {
+      if (mounted) setState(() { _isLoadingCategories = false; });
       _showErrorSnackBar('Cannot connect to server. Please check network.');
     } catch (e) {
+      if (mounted) setState(() { _isLoadingCategories = false; });
       _showErrorSnackBar('Server is down. Please try again later.');
       log('getAllCategories error: $e');
     }
@@ -416,41 +444,70 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: const Color(0xFFF8F2E8),
-      appBar: _buildAppBar(),
-      body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFFF8EA),
-              Color(0xFFF6ECD9),
-            ],
-          ),
-        ),
-        child: SingleChildScrollView(
-          controller: _scrollController,
-          child: Column(
-            children: [
-              _buildSearchBar(),
-              _buildBanner(),
-              KeyedSubtree(
-                key: _categorySectionKey,
-                child: _buildCategoryChips(),
-              ),
-              KeyedSubtree(
-                key: _productsSectionKey,
-                child: _buildTopPicks(),
-              ),
-              _buildFeaturesSection(),
-              const SizedBox(height: 30),
-            ],
-          ),
+    final content = Container(
+      decoration: const BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            Color(0xFFFFF8EA),
+            Color(0xFFF6ECD9),
+          ],
         ),
       ),
-      bottomNavigationBar: Bottombar(),
+      child: SingleChildScrollView(
+        controller: _scrollController,
+        child: Column(
+          children: [
+            _buildSearchBar(),
+            _buildBanner(),
+            KeyedSubtree(
+              key: _categorySectionKey,
+              child: _buildCategoryChips(),
+            ),
+            KeyedSubtree(
+              key: _productsSectionKey,
+              child: _buildTopPicks(),
+            ),
+            _buildFeaturesSection(),
+            const SizedBox(height: 30),
+          ],
+        ),
+      ),
+    );
+
+    return FutureBuilder<void>(
+      future: _homeDataFuture,
+      builder: (context, snapshot) {
+        final isLoading = snapshot.connectionState == ConnectionState.waiting;
+
+        return Scaffold(
+          backgroundColor: const Color(0xFFF8F2E8),
+          appBar: _buildAppBar(),
+          body: Stack(
+            children: [
+              content,
+              if (isLoading)
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.black.withOpacity(0.12),
+                    child: const Center(
+                      child: SizedBox(
+                        width: 40,
+                        height: 40,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 3,
+                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF5C4300)),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+            ],
+          ),
+          bottomNavigationBar: Bottombar(),
+        );
+      },
     );
   }
 
@@ -553,7 +610,22 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+        IconButton(
+          icon: const Icon(Icons.logout, color: Colors.white),
+          onPressed: _logout,
+          tooltip: 'Logout',
+        ),
       ],
+    );
+  }
+
+  Future<void> _logout() async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.remove('customerId');
+    if (!mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const LoginScreen()),
+      (route) => false,
     );
   }
 
@@ -636,29 +708,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ? imagePaths.first.toString()
                         : '';
                     return ListTile(
-                      leading: ClipRRect(
-                        borderRadius: BorderRadius.circular(8),
-                        child: imageUrl.isEmpty
-                            ? const SizedBox(
-                          width: 44,
-                          height: 44,
-                          child: Icon(
-                              Icons.image_not_supported_outlined),
-                        )
-                            : Image.network(
-                          imageUrl,
-                          width: 44,
-                          height: 44,
-                          fit: BoxFit.cover,
-                          errorBuilder: (_, _, _) =>
-                          const SizedBox(
-                            width: 44,
-                            height: 44,
-                            child:
-                            Icon(Icons.broken_image, size: 18),
-                          ),
-                        ),
-                      ),
+                      leading: CircularNetworkImage(url: imageUrl, size: 44),
                       title: Text(
                         product['prodname']?.toString() ?? 'Product',
                         maxLines: 1,
@@ -1033,6 +1083,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCategoryChips() {
     log('allcategories length: ${allcategories.length}');
+
+    if (_isLoadingCategories) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
+        ),
+      );
+    }
+
+    if (allcategories.isEmpty) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: Text(
+            'No categories available.',
+            style: TextStyle(fontSize: 14, color: Colors.black54),
+          ),
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -1134,21 +1210,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final imageUrl = category.catimages?['url']?.trim() ?? '';
 
     if (imageUrl.isNotEmpty) {
-      return Image.network(
-        imageUrl,
-        width: 80,
-        height: 80,
-        fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) {
-          return Icon(
-            _getCategoryIcon(index),
-            size: 32,
-            color: _selectedCategory == index
-                ? const Color(0xFFD4AF37)
-                : Colors.grey[600],
-          );
-        },
-      );
+      // ensure absolute URL
+      final finalUrl = imageUrl.startsWith('http')
+          ? imageUrl
+          : '${AppConfig.baseUrl}${imageUrl.startsWith('/') ? '' : '/'}$imageUrl';
+      return CircularNetworkImage(url: finalUrl, size: 80);
     }
 
     return Icon(
@@ -1161,6 +1227,19 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildTopPicks() {
+    if (_isLoadingProducts) {
+      return const Padding(
+        padding: EdgeInsets.symmetric(vertical: 24),
+        child: Center(
+          child: SizedBox(
+            width: 28,
+            height: 28,
+            child: CircularProgressIndicator(strokeWidth: 2.5),
+          ),
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
@@ -1204,20 +1283,30 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
           const SizedBox(height: 16),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              crossAxisSpacing: 12,
-              mainAxisSpacing: 16,
-              childAspectRatio: 0.66,
-            ),
-            itemCount: filteredProducts.length,
-            itemBuilder: (context, index) {
-              return _buildProductCard(filteredProducts[index]);
-            },
-          ),
+          filteredProducts.isEmpty
+              ? const Padding(
+                  padding: EdgeInsets.symmetric(vertical: 16),
+                  child: Center(
+                    child: Text(
+                      'No products available.',
+                      style: TextStyle(fontSize: 14, color: Colors.black54),
+                    ),
+                  ),
+                )
+              : GridView.builder(
+                  shrinkWrap: true,
+                  physics: const NeverScrollableScrollPhysics(),
+                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    crossAxisSpacing: 12,
+                    mainAxisSpacing: 16,
+                    childAspectRatio: 0.66,
+                  ),
+                  itemCount: filteredProducts.length,
+                  itemBuilder: (context, index) {
+                    return _buildProductCard(filteredProducts[index]);
+                  },
+                ),
         ],
       ),
     );
@@ -1257,14 +1346,16 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
               const SizedBox(height: 12),
               Expanded(
-                child: allcategories.isEmpty
-                    ? const Center(
-                  child: Text(
-                    'No categories available.',
-                    style: TextStyle(fontSize: 14, color: Colors.black54),
-                  ),
-                )
-                    : GridView.builder(
+                child: _isLoadingCategories
+                    ? const Center(child: CircularProgressIndicator())
+                    : allcategories.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'No categories available.',
+                              style: TextStyle(fontSize: 14, color: Colors.black54),
+                            ),
+                          )
+                        : GridView.builder(
                   padding: const EdgeInsets.fromLTRB(14, 4, 14, 16),
                   itemCount: allcategories.length,
                   gridDelegate:
@@ -1747,48 +1838,50 @@ class _HomeScreenState extends State<HomeScreen> {
       ],
     );
   }
-
-  Widget _buildBottomNavBar() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey[200]!)),
-        color: Colors.white,
-      ),
-      child: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedNavIndex,
-        selectedItemColor: const Color(0xFFD4AF37),
-        unselectedItemColor: Colors.grey[400],
-        selectedLabelStyle: const TextStyle(fontSize: 10),
-        unselectedLabelStyle: const TextStyle(fontSize: 10),
-        onTap: (index) {
-          setState(() => _selectedNavIndex = index);
-        },
-        items: [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'HOME',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.diamond_outlined),
-            label: 'COLLECTION',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search_outlined),
-            label: 'SEARCH',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_outline),
-            label: 'WISHLIST',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle_outlined),
-            label: 'ACCOUNT',
-          ),
-        ],
-      ),
-    );
+  Widget _buildBottomNavBar(){
+    return Bottombar();
   }
+  // Widget _buildBottomNavBar() {
+  //   return Container(
+  //     decoration: BoxDecoration(
+  //       border: Border(top: BorderSide(color: Colors.grey[200]!)),
+  //       color: Colors.white,
+  //     ),
+  //     child: BottomNavigationBar(
+  //       backgroundColor: Colors.white,
+  //       elevation: 0,
+  //       type: BottomNavigationBarType.fixed,
+  //       currentIndex: _selectedNavIndex,
+  //       selectedItemColor: const Color(0xFFD4AF37),
+  //       unselectedItemColor: Colors.grey[400],
+  //       selectedLabelStyle: const TextStyle(fontSize: 10),
+  //       unselectedLabelStyle: const TextStyle(fontSize: 10),
+  //       onTap: (index) {
+  //         setState(() => _selectedNavIndex = index);
+  //       },
+  //       items: [
+  //         BottomNavigationBarItem(
+  //           icon: Icon(Icons.home_outlined),
+  //           label: 'HOME',
+  //         ),
+  //         BottomNavigationBarItem(
+  //           icon: Icon(Icons.diamond_outlined),
+  //           label: 'COLLECTION',
+  //         ),
+  //         BottomNavigationBarItem(
+  //           icon: Icon(Icons.search_outlined),
+  //           label: 'SEARCH',
+  //         ),
+  //         BottomNavigationBarItem(
+  //           icon: Icon(Icons.favorite_outline),
+  //           label: 'WISHLIST',
+  //         ),
+  //         BottomNavigationBarItem(
+  //           icon: Icon(Icons.account_circle_outlined),
+  //           label: 'ACCOUNT',
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }

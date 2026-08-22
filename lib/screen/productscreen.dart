@@ -6,6 +6,7 @@ import 'dart:io';
 import 'package:bullionprod/screen/bottombar.dart';
 import 'package:bullionprod/screen/subcategory.dart';
 import 'package:flutter/material.dart';
+import 'package:bullionprod/widgets/circular_network_image.dart';
 import 'package:http/http.dart' as http;
 
 import '../app_shopping_state.dart';
@@ -270,38 +271,7 @@ class _ProductScreenState extends State<ProductScreen> {
                           final item = favouriteItems[index];
                           final imageUrl = _readImageUrl(item);
                           return ListTile(
-                            leading: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: imageUrl.isNotEmpty
-                                  ? Image.network(
-                                      imageUrl,
-                                      width: 44,
-                                      height: 44,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, _, _) => Container(
-                                        width: 44,
-                                        height: 44,
-                                        color: Colors.grey[200],
-                                        alignment: Alignment.center,
-                                        child: const Icon(
-                                          Icons.broken_image,
-                                          size: 18,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    )
-                                  : Container(
-                                      width: 44,
-                                      height: 44,
-                                      color: Colors.grey[200],
-                                      alignment: Alignment.center,
-                                      child: const Icon(
-                                        Icons.image_not_supported_outlined,
-                                        size: 18,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                            ),
+                            leading: CircularNetworkImage(url: imageUrl, size: 44),
                             title: Text(
                               _readString(item, ['prodname', 'name']),
                               maxLines: 1,
@@ -379,38 +349,7 @@ class _ProductScreenState extends State<ProductScreen> {
                           final item = _shoppingState.cart[index];
                           final imageUrl = _readImageUrl(item);
                           return ListTile(
-                            leading: ClipRRect(
-                              borderRadius: BorderRadius.circular(8),
-                              child: imageUrl.isNotEmpty
-                                  ? Image.network(
-                                      imageUrl,
-                                      width: 44,
-                                      height: 44,
-                                      fit: BoxFit.cover,
-                                      errorBuilder: (_, _, _) => Container(
-                                        width: 44,
-                                        height: 44,
-                                        color: Colors.grey[200],
-                                        alignment: Alignment.center,
-                                        child: const Icon(
-                                          Icons.broken_image,
-                                          size: 18,
-                                          color: Colors.grey,
-                                        ),
-                                      ),
-                                    )
-                                  : Container(
-                                      width: 44,
-                                      height: 44,
-                                      color: Colors.grey[200],
-                                      alignment: Alignment.center,
-                                      child: const Icon(
-                                        Icons.image_not_supported_outlined,
-                                        size: 18,
-                                        color: Colors.grey,
-                                      ),
-                                    ),
-                            ),
+                            leading: CircularNetworkImage(url: imageUrl, size: 44),
                             title: Text(
                               _readString(item, ['prodname', 'name']),
                               maxLines: 1,

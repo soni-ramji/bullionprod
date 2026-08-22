@@ -7,7 +7,7 @@ class AppConfig {
    static const String _devBase = 'http://192.168.0.2:8090/bullionadmin';
    static const String _prodBase = 'https://c48pz40q74.execute-api.us-east-1.amazonaws.com/dev';
    //static const String _devBase = 'https://c48pz40q74.execute-api.us-east-1.amazonaws.com/dev';
-  // static const String _prodBase = 'http://127.0.0.1:8086/bullionadmin';
+   //static const String _prodBase = 'http://127.0.0.1:8086/bullionadmin';
 
   static String get baseUrl => env == 'prod' ? _prodBase : _devBase;
 

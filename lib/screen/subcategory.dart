@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:bullionprod/screen/bottombar.dart';
 import 'package:bullionprod/widget/breadcrumb.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -472,45 +473,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
     );
   }
 
-  Widget _buildBottomNavBar() {
-    return Container(
-      decoration: BoxDecoration(
-        border: Border(top: BorderSide(color: Colors.grey[200]!)),
-        color: Colors.white,
-      ),
-      child: BottomNavigationBar(
-        backgroundColor: Colors.white,
-        elevation: 0,
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedNavIndex,
-        selectedItemColor: const Color(0xFFD4AF37),
-        unselectedItemColor: Colors.grey[400],
-        selectedLabelStyle: const TextStyle(fontSize: 10),
-        unselectedLabelStyle: const TextStyle(fontSize: 10),
-        onTap: _onBottomNavTap,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
-            label: 'HOME',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.diamond_outlined),
-            label: 'COLLECTION',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.search_outlined),
-            label: 'SEARCH',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_outline),
-            label: 'WISHLIST',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle_outlined),
-            label: 'ACCOUNT',
-          ),
-        ],
-      ),
-    );
+  Widget _buildBottomNavBar(){
+    return Bottombar();
   }
 }

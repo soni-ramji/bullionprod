@@ -16,8 +16,10 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  bool _isObscured = true;
   bool hasError = false;
   bool isSignup = false;
+  bool _isLoggingIn = false;
   var logger = Logger();
   final _formKey = GlobalKey<FormState>();
   int custId = -1;
@@ -25,10 +27,8 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
     custId = prefs.getInt('customerId') ?? -1;
-
   }
 
   int getSelectedCustomerId() {
@@ -57,39 +57,60 @@ class _LoginScreenState extends State<LoginScreen> {
     String userpassword = '';
 
     Future<void> validateUser() async {
-      // get mobile number
-      logger.d('Mobile number is $mobileNumber');
-      // validate mobile number
-      if (mobileNumber.isEmpty) {
-        logger.d('Mobile number is empty');
-        return;
-      }
+       // get mobile number
+       logger.d('Mobile number is $mobileNumber');
+       // validate mobile number
+       if (mobileNumber.isEmpty) {
+         logger.d('Mobile number is empty');
+         return;
+       }
 
-      final loginService = LoginService();
-      Customerloginmodel loginModel = Customerloginmodel(username: mobileNumber, password: mobilepassword);
-      final customerId = await loginService.getCustomerId(loginModel);
+       setState(() {
+         _isLoggingIn = true;
+         hasError = false;
+         errorText = '';
+       });
 
-      if (!context.mounted) return;
+       final loginService = LoginService();
+       Customerloginmodel loginModel = Customerloginmodel(username: mobileNumber, password: mobilepassword);
 
-      if (customerId != null && customerId != -1) {
-        setState(() {
-          hasError = false;
-        });
-        logger.d('Customer ID is $customerId');
+       int? customerId;
+       const int maxAttempts = 2;
+       final timeout = const Duration(seconds: 15);
 
-        await prefs.setInt('customerId', customerId);
+       for (int attempt = 1; attempt <= maxAttempts; attempt++) {
+         logger.d('Login attempt $attempt');
+         customerId = await loginService.getCustomerId(loginModel, timeout: timeout);
+         if (customerId != null && customerId != -1) break;
+         // brief delay before retry
+         if (attempt < maxAttempts) await Future.delayed(const Duration(seconds: 1));
+       }
 
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
-        );
-      } else {
-        setState(() {
-          hasError = true;
-          errorText= 'You are not a customer of TD Jewellery.';
-        });
-        logger.d('hasError is $hasError');
-      }
+       if (!context.mounted) return;
+
+       setState(() {
+         _isLoggingIn = false;
+       });
+
+       if (customerId != null && customerId != -1) {
+         setState(() {
+           hasError = false;
+         });
+         logger.d('Customer ID is $customerId');
+
+         await prefs.setInt('customerId', customerId);
+
+         Navigator.push(
+           context,
+           MaterialPageRoute(builder: (_) => const HomeScreen()),
+         );
+       } else {
+         setState(() {
+           hasError = true;
+           errorText = 'Unable to login. Please check credentials or try again.';
+         });
+         logger.d('hasError is $hasError');
+       }
     }
 
     Future<void> signup() async {
@@ -287,11 +308,21 @@ class _LoginScreenState extends State<LoginScreen> {
                   child: SizedBox(
                     width: 300, // Set the desired width
                     child: TextFormField(
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         labelText: 'Password',
-                        errorStyle: TextStyle(color: Colors.red, fontSize: 16),
+                        errorStyle: const TextStyle(color: Colors.red, fontSize: 16),
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _isObscured ? Icons.visibility_off : Icons.visibility,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              _isObscured = !_isObscured;
+                            });
+                          },
+                        )
                       ),
-                      obscureText: true,
+                      obscureText: _isObscured,
                       keyboardType: TextInputType.text,
                       validator: (value) {
                         if (value == null || value.isEmpty) {
@@ -309,20 +340,26 @@ class _LoginScreenState extends State<LoginScreen> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
                     if(!isSignup)
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue, // Sets background to blue
-                        foregroundColor: Colors.white, // Sets text and icon color to white
-                      ),
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          // Process the login
-                          logger.d('Login button pressed');
-                          validateUser();
-                        }
-                      },
-                      child: const Text('Login'),
-                    ),
+                    _isLoggingIn
+                        ? const SizedBox(
+                            width: 120,
+                            height: 40,
+                            child: Center(child: CircularProgressIndicator()),
+                          )
+                        : ElevatedButton(
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue, // Sets background to blue
+                              foregroundColor: Colors.white, // Sets text and icon color to white
+                            ),
+                            onPressed: () {
+                              if (_formKey.currentState!.validate()) {
+                                // Process the login
+                                logger.d('Login button pressed');
+                                validateUser();
+                              }
+                            },
+                            child: const Text('Login'),
+                          ),
                     const SizedBox(width: 20),
                     if(!isSignup)
                     Center(
