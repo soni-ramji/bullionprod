@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:bullionprod/main.dart';
+import 'package:bullionprod/screen/AppBarStless.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bullionprod/widgets/circular_network_image.dart';
@@ -40,10 +42,11 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedNavIndex = 0;
   final TextEditingController _searchController = TextEditingController();
   late final Future<void> _homeDataFuture;
-
+  int customerId = -1;
   @override
   void initState() {
     super.initState();
+    customerId= prefs.getInt("customerId") ?? -1;
     _shoppingState.addListener(_onShoppingStateChanged);
     _homeDataFuture = _loadHomeData();
   }
@@ -104,7 +107,7 @@ class _HomeScreenState extends State<HomeScreen> {
         headers: <String, String>{
           'Content-Type': 'application/json; charset=UTF-8',
         },
-      ).timeout(const Duration(seconds: 15));
+      ).timeout(const Duration(seconds: 20));
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
         List<dynamic> listItem = [];
@@ -248,14 +251,12 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> getAllCategory() async {
-    final completer = Completer<Object>();
     try {
-      setState(() { _isLoadingCategories = true; });
+      if (mounted) setState(() => _isLoadingCategories = true);
       List<CategoryModel> allCategories = [];
       String url = AppConfig.GET_CATEGORY;
       log('Fetching categories from URL: $url');
-      //final SharedPreferences prefs = await SharedPreferences.getInstance();
-      int commodityId = 1; //prefs.getInt('commodityId') ?? 0;
+      int commodityId = 1;
       String body = jsonEncode(commodityId);
       final response = await http
           .post(
@@ -265,8 +266,8 @@ class _HomeScreenState extends State<HomeScreen> {
         },
         body: body,
       )
-          .timeout(const Duration(seconds: 15));
-      completer.complete(response);
+          .timeout(const Duration(seconds: 20));
+
       if (response.statusCode == 200) {
         final decoded = json.decode(response.body);
         List<dynamic> listItem = [];
@@ -274,7 +275,6 @@ class _HomeScreenState extends State<HomeScreen> {
         if (decoded is List) {
           listItem = decoded;
         } else if (decoded is Map) {
-          // Common wrapper keys that may contain the list
           if (decoded['data'] is List) {
             listItem = decoded['data'];
           } else if (decoded['items'] is List) {
@@ -284,7 +284,6 @@ class _HomeScreenState extends State<HomeScreen> {
           } else if (decoded['list'] is List) {
             listItem = decoded['list'];
           } else {
-            // Fallback: convert map values to a list (handles numeric-keyed objects)
             listItem = decoded.values.toList();
           }
         } else {
@@ -299,7 +298,6 @@ class _HomeScreenState extends State<HomeScreen> {
           try {
             item = Map<String, dynamic>.from(rawItem as Map);
           } catch (e) {
-            // Skip non-map items
             continue;
           }
 
@@ -309,8 +307,8 @@ class _HomeScreenState extends State<HomeScreen> {
           int commodityId = 0;
           String commodityName = '';
           String description = '';
-          Map<String, String>? catimages;
-          // Safely read fields with type checks
+          String imagepath = '';
+
           if (item['id'] != null) {
             id = (item['id'] is int)
                 ? item['id'] as int
@@ -333,11 +331,15 @@ class _HomeScreenState extends State<HomeScreen> {
             description = item['description'].toString();
           }
 
-          if (item['catimages'] != null &&
-              item['catimages'] is Map<String, dynamic>) {
-            catimages = Map<String, String>.from(
-                item['catimages'] as Map<String, dynamic>);
+          if (item['imagepath'] != null) {
+            imagepath = item['imagepath'].toString();
           }
+
+          // if (item['imagepath'] != null &&
+          //     item['imagepath'] is Map<String, dynamic>) {
+          //   catimages = Map<String, String>.from(
+          //       item['imagepath'] as Map<String, dynamic>);
+          // }
 
           CategoryModel categoryModel = CategoryModel(
             id: id,
@@ -346,9 +348,9 @@ class _HomeScreenState extends State<HomeScreen> {
             commodityId: commodityId,
             commodityName: commodityName,
             description: description,
-            catimages: catimages,
+            imagepath: imagepath,
           );
-          log('Parsed CategoryModel: ${categoryModel.catimages}');
+          log('Parsed CategoryModel: ${categoryModel.imagepath}');
           allCategories.add(categoryModel);
         }
 
@@ -356,29 +358,26 @@ class _HomeScreenState extends State<HomeScreen> {
         setState(() {
           allcategories = allCategories;
           _isLoadingCategories = false;
-          // _stockImageUrls
-          //   ..clear()
-          //   ..addAll(imageMap);
           log('allCategories is ${allCategories.length}');
         });
       } else {
-        if (mounted) setState(() { _isLoadingCategories = false; });
+        if (mounted) setState(() => _isLoadingCategories = false);
         _showErrorSnackBar(
           'Unable to load categories. Server error (${response.statusCode}).',
         );
       }
     } on TimeoutException catch (e) {
       log(e.message ?? 'TimeoutException occurred');
-      if (mounted) setState(() { _isLoadingCategories = false; });
+      if (mounted) setState(() => _isLoadingCategories = false);
       _showErrorSnackBar('Server is down or not responding. Please try again.');
     } on SocketException {
-      if (mounted) setState(() { _isLoadingCategories = false; });
-        _showErrorSnackBar('Network is down. Please check internet connection.');
+      if (mounted) setState(() => _isLoadingCategories = false);
+      _showErrorSnackBar('Network is down. Please check internet connection.');
     } on http.ClientException {
-      if (mounted) setState(() { _isLoadingCategories = false; });
+      if (mounted) setState(() => _isLoadingCategories = false);
       _showErrorSnackBar('Cannot connect to server. Please check network.');
     } catch (e) {
-      if (mounted) setState(() { _isLoadingCategories = false; });
+      if (mounted) setState(() => _isLoadingCategories = false);
       _showErrorSnackBar('Server is down. Please try again later.');
       log('getAllCategories error: $e');
     }
@@ -484,26 +483,31 @@ class _HomeScreenState extends State<HomeScreen> {
         return Scaffold(
           backgroundColor: const Color(0xFFF8F2E8),
           appBar: _buildAppBar(),
-          body: Stack(
-            children: [
-              content,
-              if (isLoading)
-                Positioned.fill(
-                  child: Container(
-                    color: Colors.black.withOpacity(0.12),
-                    child: const Center(
-                      child: SizedBox(
-                        width: 40,
-                        height: 40,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 3,
-                          valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF5C4300)),
+          //appBar: AppBarStless(title: 'THE TD JEWELS'),
+          body: RefreshIndicator(
+            onRefresh: () async {},
+            notificationPredicate: (_) => false,
+            child: Stack(
+              children: [
+                content,
+                if (isLoading)
+                  Positioned.fill(
+                    child: Container(
+                      color: Colors.black.withOpacity(0.12),
+                      child: const Center(
+                        child: SizedBox(
+                          width: 40,
+                          height: 40,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 3,
+                            valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF5C4300)),
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-            ],
+              ],
+            ),
           ),
           bottomNavigationBar: Bottombar(),
         );
@@ -610,6 +614,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ],
         ),
+        if (customerId!=-1)
         IconButton(
           icon: const Icon(Icons.logout, color: Colors.white),
           onPressed: _logout,
@@ -1189,7 +1194,7 @@ class _HomeScreenState extends State<HomeScreen> {
   IconData _getCategoryIcon(int index) {
     // get image from category model if available, else use default icons
     if (index < allcategories.length &&
-        allcategories[index].catimages != null) {
+        allcategories[index].imagepath != null) {
       // Here you can implement logic to return an appropriate icon based on the category's image or name.
       // For simplicity, we'll return a default icon for now.
       return Icons.category;
@@ -1207,7 +1212,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildCategoryChipImage(int index) {
     final category = allcategories[index];
-    final imageUrl = category.catimages?['url']?.trim() ?? '';
+    final imageUrl = category.imagepath?.trim() ?? '';
 
     if (imageUrl.isNotEmpty) {
       // ensure absolute URL
@@ -1373,7 +1378,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ? category.catname!
                         : 'Category ${index + 1}';
                     final imageUrl =
-                        category.catimages?['url']?.trim() ?? '';
+                        category.imagepath?.trim() ?? '';
 
                     return MouseRegion(
                       cursor: SystemMouseCursors.click,
@@ -1455,13 +1460,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildProductCard(ProductModel product) {
     return Card(
-      elevation: 7,
+      elevation: 5,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       clipBehavior: Clip.antiAlias,
       child: Column(
         children: [
           Expanded(
-            flex: 4,
+            flex: 6,
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
@@ -1494,6 +1499,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Positioned(
                       top: 8,
                       right: 8,
+                      height: 10,
                       child: GestureDetector(
                         onTap: () => _toggleFavourite(product),
                         child: Container(
@@ -1546,16 +1552,16 @@ class _HomeScreenState extends State<HomeScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'PRODUCT NAME',
-                          style: TextStyle(
-                            fontSize: 8,
-                            color: Color(0xFF927328),
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
-                        const SizedBox(height: 2),
+                        // const Text(
+                        //   'PRODUCT NAME',
+                        //   style: TextStyle(
+                        //     fontSize: 8,
+                        //     color: Color(0xFF927328),
+                        //     fontWeight: FontWeight.w700,
+                        //     letterSpacing: 0.8,
+                        //   ),
+                        // ),
+                        const SizedBox(height: 1),
                         Text(
                           product.prodname + '  ₹ ${product.productprice.toStringAsFixed(2)}',
                           maxLines: 1,
@@ -1586,12 +1592,70 @@ class _HomeScreenState extends State<HomeScreen> {
 
                           ],
                         ),
+                        const SizedBox(height: 6),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF5C4300),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              const Text(
+                                'AMNT',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  color: Color(0xFFFFE7A3),
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.6,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Align(
+                                  alignment: Alignment.centerRight,
+                                  child: Text(
+                                    '₹ ${product.productprice.toStringAsFixed(2)}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const Spacer(),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: GestureDetector(
+                                  onTap: () {
+                                    _shoppingState.addToCart(_productData(product));
+                                    log(
+                                      'Added product to shopping cart. Total items: ${_shoppingState.cartCount}',
+                                    );
+                                  },
+                                  child: const Icon(
+                                    Icons.shopping_bag_outlined,
+                                    size: 16,
+                                    color: Color(0xFFD4AF37),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
 
                   // Bottom block: amount and action (slimmed padding)
-                  Container(
+                 /* Container(
                     width: double.infinity,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -1641,7 +1705,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ],
                     ),
-                  ),
+                  ),*/
                 ],
               ),
             ),
@@ -1653,7 +1717,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildProductDetail({required String label, required String value}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 5),
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(7),
@@ -1841,47 +1905,5 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget _buildBottomNavBar(){
     return Bottombar();
   }
-  // Widget _buildBottomNavBar() {
-  //   return Container(
-  //     decoration: BoxDecoration(
-  //       border: Border(top: BorderSide(color: Colors.grey[200]!)),
-  //       color: Colors.white,
-  //     ),
-  //     child: BottomNavigationBar(
-  //       backgroundColor: Colors.white,
-  //       elevation: 0,
-  //       type: BottomNavigationBarType.fixed,
-  //       currentIndex: _selectedNavIndex,
-  //       selectedItemColor: const Color(0xFFD4AF37),
-  //       unselectedItemColor: Colors.grey[400],
-  //       selectedLabelStyle: const TextStyle(fontSize: 10),
-  //       unselectedLabelStyle: const TextStyle(fontSize: 10),
-  //       onTap: (index) {
-  //         setState(() => _selectedNavIndex = index);
-  //       },
-  //       items: [
-  //         BottomNavigationBarItem(
-  //           icon: Icon(Icons.home_outlined),
-  //           label: 'HOME',
-  //         ),
-  //         BottomNavigationBarItem(
-  //           icon: Icon(Icons.diamond_outlined),
-  //           label: 'COLLECTION',
-  //         ),
-  //         BottomNavigationBarItem(
-  //           icon: Icon(Icons.search_outlined),
-  //           label: 'SEARCH',
-  //         ),
-  //         BottomNavigationBarItem(
-  //           icon: Icon(Icons.favorite_outline),
-  //           label: 'WISHLIST',
-  //         ),
-  //         BottomNavigationBarItem(
-  //           icon: Icon(Icons.account_circle_outlined),
-  //           label: 'ACCOUNT',
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+
 }

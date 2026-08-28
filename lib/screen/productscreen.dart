@@ -828,7 +828,7 @@ class _ProductScreenState extends State<ProductScreen> {
         crossAxisCount: 2,
         mainAxisSpacing: 14,
         crossAxisSpacing: 14,
-        childAspectRatio: 0.66,
+        childAspectRatio: 0.60,
       ),
       itemBuilder: (context, index) {
         return _buildProductCard(product[index]);
@@ -863,7 +863,7 @@ class _ProductScreenState extends State<ProductScreen> {
         children: [
 
           Expanded(
-            flex: 4,
+            flex: 5,
             child: MouseRegion(
               cursor: SystemMouseCursors.click,
               child: GestureDetector(
@@ -923,7 +923,7 @@ class _ProductScreenState extends State<ProductScreen> {
             ),
           ),
           Expanded(
-            flex: 5,
+            flex: 4,
             child: Container(
               width: double.infinity,
               padding: const EdgeInsets.fromLTRB(10, 9, 10, 10),
@@ -943,15 +943,15 @@ class _ProductScreenState extends State<ProductScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        const Text(
-                          'PRODUCT NAME',
-                          style: TextStyle(
-                            fontSize: 8,
-                            color: Color(0xFF927328),
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.8,
-                          ),
-                        ),
+                        // const Text(
+                        //   'PRODUCT NAME',
+                        //   style: TextStyle(
+                        //     fontSize: 8,
+                        //     color: Color(0xFF927328),
+                        //     fontWeight: FontWeight.w700,
+                        //     letterSpacing: 0.8,
+                        //   ),
+                        // ),
                         const SizedBox(height: 2),
                         Text(
                           '$name - ₹ ${productPrice.toStringAsFixed(2)}',
@@ -984,54 +984,102 @@ class _ProductScreenState extends State<ProductScreen> {
                             ),
                           ],
                         ),
+                        const SizedBox(height: 6),
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF5C4300),
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Row(
+                            children: [
+                              const Text(
+                                'AMNT',
+                                style: TextStyle(
+                                  fontSize: 9,
+                                  color: Color(0xFFFFE7A3),
+                                  fontWeight: FontWeight.w700,
+                                  letterSpacing: 0.6,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                    '₹ ${productPrice.toStringAsFixed(2)}',
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ),
+
+                              const SizedBox(width: 8),
+                              Align(
+                                alignment: Alignment.centerRight,
+                                child: GestureDetector(
+                                  onTap: () => _addToCart(item),
+                                  child: const Icon(
+                                    Icons.shopping_bag_outlined,
+                                    size: 18,
+                                    color: Color(0xFFD4AF37),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
                     ),
                   ),
 
                   //Bottom block: fixed height to prevent overflow
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF5C4300),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Row(
-                      children: [
-                        const Text(
-                          'AMOUNT',
-                          style: TextStyle(
-                            fontSize: 9,
-                            color: Color(0xFFFFE7A3),
-                            fontWeight: FontWeight.w700,
-                            letterSpacing: 0.6,
-                          ),
-                        ),
-                        const Spacer(),
-                        Flexible(
-                          child: Text(
-                            '₹ ${productPrice.toStringAsFixed(2)}',
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: Colors.white,
-                              fontWeight: FontWeight.w800,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 6),
-                        GestureDetector(
-                          onTap: () => _addToCart(item),
-                          child: const Icon(
-                            Icons.shopping_bag_outlined,
-                            size: 18,
-                            color: Color(0xFFD4AF37),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
+                  // Container(
+                  //   width: double.infinity,
+                  //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                  //   decoration: BoxDecoration(
+                  //     color: const Color(0xFF5C4300),
+                  //     borderRadius: BorderRadius.circular(8),
+                  //   ),
+                  //   child: Row(
+                  //     children: [
+                  //       const Text(
+                  //         'AMOUNT',
+                  //         style: TextStyle(
+                  //           fontSize: 9,
+                  //           color: Color(0xFFFFE7A3),
+                  //           fontWeight: FontWeight.w700,
+                  //           letterSpacing: 0.6,
+                  //         ),
+                  //       ),
+                  //       const Spacer(),
+                  //       Flexible(
+                  //         child: Text(
+                  //           '₹ ${productPrice.toStringAsFixed(2)}',
+                  //           maxLines: 1,
+                  //           overflow: TextOverflow.ellipsis,
+                  //           style: const TextStyle(
+                  //             fontSize: 12,
+                  //             color: Colors.white,
+                  //             fontWeight: FontWeight.w800,
+                  //           ),
+                  //         ),
+                  //       ),
+                  //       const SizedBox(width: 6),
+                  //       GestureDetector(
+                  //         onTap: () => _addToCart(item),
+                  //         child: const Icon(
+                  //           Icons.shopping_bag_outlined,
+                  //           size: 18,
+                  //           color: Color(0xFFD4AF37),
+                  //         ),
+                  //       ),
+                  //     ],
+                  //   ),
+                  // ),
                 ],
               ),
             ),

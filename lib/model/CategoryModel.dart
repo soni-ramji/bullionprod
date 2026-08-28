@@ -11,7 +11,7 @@ class CategoryModel {
 
   String? description;
 
-  Map<String, String>? catimages;
+  String? imagepath;
 
   String? imagename;
 
@@ -24,7 +24,7 @@ class CategoryModel {
     this.commodityId,
     this.commodityName,
     this.description,
-    this.catimages,
+    this.imagepath,
     this.imagename,
     this.imageurl,
   });
@@ -37,9 +37,7 @@ class CategoryModel {
       commodityId: json['commodityId'],
       commodityName: json['commodityName'],
       description: json['description'],
-      catimages: json['catimages'] != null
-          ? Map<String, String>.from(json['catimages'])
-          : null,
+      imagepath: json['imagepath'],
       imagename: json['imagename'],
       imageurl: json['imageurl'],
     );
@@ -53,7 +51,7 @@ class CategoryModel {
       'commodityId': commodityId,
       'commodityName': commodityName,
       'description': description,
-      'catimages': catimages,
+      'imagepath': imagepath,
       'imagename': imagename,
       'imageurl': imageurl,
     };

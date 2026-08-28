@@ -30,8 +30,13 @@ class _BottombarState extends State<Bottombar> {
         currentIndex: _selectedNavIndex,
         selectedItemColor: const Color(0xFFD4AF37),
         unselectedItemColor: Colors.grey[400],
-        selectedLabelStyle: const TextStyle(fontSize: 10),
-        unselectedLabelStyle: const TextStyle(fontSize: 10),
+        selectedLabelStyle: const TextStyle(fontSize: 9),
+        unselectedLabelStyle: const TextStyle(fontSize: 9),
+        iconSize: 20,
+        selectedFontSize: 9,
+        unselectedFontSize: 9,
+        enableFeedback: false,
+        landscapeLayout: BottomNavigationBarLandscapeLayout.centered,
         onTap: (index) {
           logger.d('Selected index: $index');
           setState(() => _selectedNavIndex = index);
@@ -81,23 +86,60 @@ class _BottombarState extends State<Bottombar> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          _buildBottomNavBar(),
-          // const Padding(
-          //   padding: EdgeInsets.only(bottom: 2, top: 0),
-          //   child: Text(
-          //     'THE TD Software : +91 8800634100',
-          //     style: TextStyle(
-          //       fontSize: 11,
-          //       color: Color(0xFFD4AF37),
-          //       fontWeight: FontWeight.w600,
-          //       letterSpacing: 0.3,
-          //     ),
-          //     textAlign: TextAlign.right,
-          //   ),
-          // ),
+
+            _buildBottomNavBar(),
+
+          Padding(
+            padding: const EdgeInsets.only(bottom: 4, top: 0, right: 8),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: Text(
+                'THE TD Software : +91 8800634100',
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  fontSize: 9,
+                  color: Color(0xFFD4AF37),
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.2,
+                ),
+                textAlign: TextAlign.right,
+              ),
+            ),
+          ),
         ],
       ),
     );
   }
+  // @override
+  // Widget build(BuildContext context) {
+  //   return Container(
+  //     color: const Color(0xFF5C4300),
+  //     child: Column(
+  //       mainAxisSize: MainAxisSize.min,
+  //       children: [
+  //         _buildBottomNavBar(),
+  //         Padding(
+  //           padding: const EdgeInsets.only(bottom: 4, top: 2, right: 8),
+  //           child: Align(
+  //             alignment: Alignment.centerRight,
+  //             child: Text(
+  //               'THE TD Software : +91 8800634100',
+  //               maxLines: 1,
+  //               overflow: TextOverflow.ellipsis,
+  //               style: const TextStyle(
+  //                 fontSize: 9,
+  //                 color: Color(0xFFD4AF37),
+  //                 fontWeight: FontWeight.w600,
+  //                 letterSpacing: 0.2,
+  //               ),
+  //               textAlign: TextAlign.right,
+  //             ),
+  //           ),
+  //         ),
+  //       ],
+  //     ),
+  //   );
+  // }
 }
 

@@ -4,14 +4,14 @@ import 'package:bullionprod/model/customer_purchase_model.dart';
 import 'package:bullionprod/service/customer_purchase_service.dart';
 import 'package:bullionprod/widget/purchase_item_widget.dart';
 
-class PurchaseItemScreen extends StatefulWidget {
-  const PurchaseItemScreen({super.key});
+class PurchaseItemScreen1 extends StatefulWidget {
+  const PurchaseItemScreen1({super.key});
 
   @override
-  State<PurchaseItemScreen> createState() => _PurchaseItemState();
+  State<PurchaseItemScreen1> createState() => _PurchaseItemState();
 }
 
-class _PurchaseItemState extends State<PurchaseItemScreen> {
+class _PurchaseItemState extends State<PurchaseItemScreen1> {
   List<CustomerPurchaseModel> allPurchase = [];
   @override
   void initState() {
