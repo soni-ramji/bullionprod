@@ -2,6 +2,7 @@ import 'package:bullionprod/main.dart';
 import 'package:bullionprod/model/CusomerSignupModel.dart';
 import 'package:bullionprod/model/CustomerLoginModel.dart';
 import 'package:bullionprod/screen/home.dart';
+import 'package:bullionprod/screen/home1.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/web.dart';
 import 'package:bullionprod/screen/purchase_item_screen.dart';
@@ -44,7 +45,7 @@ class _LoginScreenState extends State<LoginScreen> {
         logger.d('Customer ID is $custId');
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          MaterialPageRoute(builder: (_) => const HomeScreen1()),
         );
       }
       // Or open a dialog / snackbar
@@ -102,7 +103,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
          Navigator.push(
            context,
-           MaterialPageRoute(builder: (_) => const HomeScreen()),
+           MaterialPageRoute(builder: (_) => const HomeScreen1()),
          );
        } else {
          setState(() {
@@ -164,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (_) => const HomeScreen()),
+          MaterialPageRoute(builder: (_) => const HomeScreen1()),
         );
       } else {
         setState(() {

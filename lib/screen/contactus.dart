@@ -136,7 +136,7 @@ class ContactUs extends StatelessWidget {
                             _ContactActionCard(
                               icon: Icons.chat_bubble_outline_rounded,
                               overline: 'MESSAGE US',
-                              title: 'WhatsApp concierge',
+                              title: 'WhatsApp Number',
                               actionLabel: 'Copy support number',
                               onTap: () => _copyNumber(context),
                             ),
@@ -188,7 +188,7 @@ class _ContactActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final background = isPrimary ? const Color(0xFF163F4A) : Colors.white;
+    final background = isPrimary ? const Color(0xFF5C4300) : Colors.white;
     final foreground = isPrimary ? Colors.white : const Color(0xFF102D38);
     final faded = isPrimary ? const Color(0xFFC3D3D4) : const Color(0xFF6A7B82);
 
@@ -281,7 +281,7 @@ class _AvailabilityPill extends StatelessWidget {
           CircleAvatar(radius: 4, backgroundColor: Color(0xFF3B866B)),
           SizedBox(width: 8),
           Text(
-            'JEWELLERY CONCIERGE AVAILABLE',
+            'JEWELLERY CONTACTS AVAILABLE',
             style: TextStyle(
               color: Color(0xFF315C50),
               fontSize: 10,

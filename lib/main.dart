@@ -1,17 +1,20 @@
 import 'dart:io';
 
 import 'package:bullionprod/screen/home.dart';
+import 'package:bullionprod/screen/home1.dart';
 
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 
+
 late SharedPreferences prefs;
 
 Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized(); //
-  prefs = await SharedPreferences.getInstance();
 
+
+  WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
+  prefs = await SharedPreferences.getInstance();
   runApp(const MyApp());
 }
 
@@ -32,7 +35,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const HomeScreen(),
+      home: const HomeScreen1(),
 
     );
   }

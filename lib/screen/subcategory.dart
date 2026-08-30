@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:bullionprod/screen/bottombar.dart';
+import 'package:bullionprod/screen/home1.dart';
 import 'package:bullionprod/widget/breadcrumb.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -226,7 +227,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                   items: [
                     BreadcrumbItem('Home', onTap: () {
                       Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                        MaterialPageRoute(builder: (_) => const HomeScreen1()),
                             (route) => false,
                       );
                     }),
@@ -252,7 +253,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
 
     if (index == 0) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => const HomeScreen1()),
         (route) => false,
       );
     }

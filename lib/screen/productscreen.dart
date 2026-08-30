@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:bullionprod/screen/bottombar.dart';
+import 'package:bullionprod/screen/home1.dart';
 import 'package:bullionprod/screen/subcategory.dart';
 import 'package:flutter/material.dart';
 import 'package:bullionprod/widgets/circular_network_image.dart';
@@ -647,7 +648,7 @@ class _ProductScreenState extends State<ProductScreen> {
                   items: [
                     BreadcrumbItem('Home', onTap: () {
                       Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const HomeScreen()),
+                        MaterialPageRoute(builder: (_) => const HomeScreen1()),
                         (route) => false,
                       );
                     }),
@@ -734,7 +735,7 @@ class _ProductScreenState extends State<ProductScreen> {
 
     if (index == 0) {
       Navigator.of(context).pushAndRemoveUntil(
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (_) => const HomeScreen1()),
         (route) => false,
       );
     }
