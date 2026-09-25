@@ -43,4 +43,8 @@ class AppConfig {
       '/subcategory/getsubcategoriesbycatid';
 
   static String get GET_PRODUCT_DIO => '/tdproduct/list';
+
+  static String get CUSTOMER_LOGIN_DIO => '/customer/getmobilecustomer';
+
+  static String get CUSTOMER_SIGNUP_DIO => '/customer/addmobilecustomer';
 }

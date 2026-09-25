@@ -1,13 +1,12 @@
 import 'package:bullionprod/main.dart';
 import 'package:bullionprod/model/CusomerSignupModel.dart';
 import 'package:bullionprod/model/CustomerLoginModel.dart';
-import 'package:bullionprod/screen/home.dart';
+
 import 'package:bullionprod/screen/home1.dart';
+import 'package:bullionprod/service/APIServices.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/web.dart';
-import 'package:bullionprod/screen/purchase_item_screen.dart';
-import 'package:bullionprod/service/login_service.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -25,6 +24,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   int custId = -1;
   String errorText = '';
+  ApiService _apiService = ApiService();
 
   @override
   void initState() {
@@ -72,7 +72,7 @@ class _LoginScreenState extends State<LoginScreen> {
          errorText = '';
        });
 
-       final loginService = LoginService();
+
        Customerloginmodel loginModel = Customerloginmodel(username: mobileNumber, password: mobilepassword);
 
        int? customerId;
@@ -81,7 +81,9 @@ class _LoginScreenState extends State<LoginScreen> {
 
        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
          logger.d('Login attempt $attempt');
-         customerId = await loginService.getCustomerId(loginModel, timeout: timeout);
+
+         ApiService _apiService = ApiService();
+         customerId = await _apiService.getCustomerId(loginModel);
          if (customerId != null && customerId != -1) break;
          // brief delay before retry
          if (attempt < maxAttempts) await Future.delayed(const Duration(seconds: 1));
@@ -138,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
         return;
       }
 
-      final loginService = LoginService();
+
       CustomerSignup customersignup = CustomerSignup(
         id: -1,
         name: username,
@@ -151,7 +153,8 @@ class _LoginScreenState extends State<LoginScreen> {
         identityvalue: '',
         passwd: mobilepassword,
       );
-      final customerId = await loginService.signup(customersignup);
+
+      final customerId = await _apiService.customerSignUp(customersignup);
 
       if (!context.mounted) return;
 

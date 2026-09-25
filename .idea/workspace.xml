@@ -36,23 +36,15 @@
       <change beforePath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/file-system.probe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/app_shopping_state.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/app_shopping_state.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/environment.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/environment.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/main.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/main.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/model/CategoryModel.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/CategoryModel.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/model/ProductModel.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/ProductModel.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/AppBar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/AppBar.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/ProductSearchScreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/ProductSearchScreen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/bottombar.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/bottombar.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/home.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/home.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/home1.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/home1.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/productscreen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/productscreen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/subcategory.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/subcategory.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/login_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/screen/purchase_item_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/purchase_item_screen.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/service/APIServices.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/service/APIServices.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/service/BullionUtil.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/service/BullionUtil.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/widgets/ProductWidget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widget/ProductWidget.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/widgets/circular_network_image.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widget/circular_network_image.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.lock" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.lock" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/service/customer_purchase_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/service/customer_purchase_service.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/service/login_service.dart" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/widget/ProductWidget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widget/ProductWidget.dart" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -259,13 +251,8 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/screen/login_screen.dart</url>
-          <line>125</line>
+          <line>127</line>
           <option name="timeStamp" value="21" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/service/login_service.dart</url>
-          <line>82</line>
-          <option name="timeStamp" value="22" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/screen/commodityrate.dart</url>
@@ -289,11 +276,6 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/screen/ProductSearchScreen.dart</url>
-          <line>656</line>
-          <option name="timeStamp" value="33" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/screen/ProductSearchScreen.dart</url>
           <line>30</line>
           <option name="timeStamp" value="36" />
         </line-breakpoint>
@@ -301,11 +283,6 @@
           <url>file://$PROJECT_DIR$/lib/screen/productscreen.dart</url>
           <line>773</line>
           <option name="timeStamp" value="46" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/screen/home1.dart</url>
-          <line>110</line>
-          <option name="timeStamp" value="47" />
         </line-breakpoint>
       </breakpoints>
     </breakpoint-manager>

@@ -3,7 +3,6 @@ import 'dart:developer';
 
 import 'package:bullionprod/app_shopping_state.dart';
 import 'package:bullionprod/model/ProductModel.dart';
-import 'package:bullionprod/screen/bottombar.dart';
 import 'package:bullionprod/service/BullionUtil.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -31,14 +30,7 @@ class _ProductwidgetState extends State<Productwidget> {
   }
 
 
-  Map<String, dynamic> _productData(ProductModel product) => <String, dynamic>{
-    'id': product.id,
-    'prodname': product.prodname,
-    'prodweight': product.prodweight,
-    'karatpurity': product.karatpurity,
-    'productprice': product.productprice,
-    'imagepath': product.imagepath,
-  };
+
   void _toggleFavourite(ProductModel product) {
     _shoppingState.toggleFavourite(product);
   }

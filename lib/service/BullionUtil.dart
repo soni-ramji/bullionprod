@@ -1,11 +1,12 @@
 import 'dart:convert';
 
 import 'package:bullionprod/app_scaffold_messenger.dart';
+import 'package:bullionprod/app_shopping_state.dart';
+import 'package:bullionprod/model/ProductModel.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class BullionUtil{
-
 
   static void showErrorSnackBar(String message) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -144,6 +145,10 @@ class BullionUtil{
       imagepath = [];
     }
   return imagepath;
+  }
+
+   static void toggleFavourite(ProductModel product, AppShoppingState _shoppingState) {
+    _shoppingState.toggleFavourite(product);
   }
 
 }
