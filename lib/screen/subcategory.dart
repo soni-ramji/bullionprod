@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:bullionprod/model/SubCategoryModel.dart';
 import 'package:bullionprod/screen/bottombar.dart';
 import 'package:bullionprod/screen/home1.dart';
+import 'package:bullionprod/service/APIServices.dart';
 import 'package:bullionprod/widget/breadcrumb.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
@@ -14,8 +16,7 @@ import 'productscreen.dart';
 import 'home.dart';
 
 class SubCategoryScreen extends StatefulWidget {
-  const SubCategoryScreen(
-      {super.key, required this.categoryId, required this.categoryName});
+  const SubCategoryScreen({super.key, required this.categoryId, required this.categoryName});
 
   final int categoryId;
   final String categoryName;
@@ -27,7 +28,9 @@ class SubCategoryScreen extends StatefulWidget {
 class _SubCategoryScreenState extends State<SubCategoryScreen> {
   bool _isLoading = false;
   String? _errorMessage;
-  List<Map<String, dynamic>> _subcategories = <Map<String, dynamic>>[];
+  List<SubCategoryModel> _subcategories = [];
+  List<SubCategoryModel> _filteredSubcategories = [];
+
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   int _selectedNavIndex = 1;
@@ -44,62 +47,6 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
     super.dispose();
   }
 
-  List<Map<String, dynamic>> get _filteredSubcategories {
-    final query = _searchQuery.trim().toLowerCase();
-    if (query.isEmpty) return _subcategories;
-
-    return _subcategories.where((item) {
-      final name = _readString(item, [
-        'subcatname',
-        'subcategoryname',
-        'subcatName',
-        'name',
-      ]);
-      return name.toLowerCase().contains(query);
-    }).toList();
-  }
-
-  String _readString(Map<String, dynamic> item, List<String> keys) {
-    for (final key in keys) {
-      final value = item[key];
-      if (value != null && value.toString().trim().isNotEmpty) {
-        return value.toString().trim();
-      }
-    }
-    return '-';
-  }
-
-  String _readImageUrl(Map<String, dynamic> item) {
-    final directUrl = _readString(item, [
-      'imageurl',
-      'imageUrl',
-      'imagename',
-      'image',
-      'url',
-    ]);
-    if (directUrl != '-' && directUrl.trim().isNotEmpty) {
-      return directUrl;
-    }
-
-    final imageMap =
-        item['subcatimages'] ?? item['catimages'] ?? item['images'];
-    if (imageMap is Map) {
-      final map = Map<String, dynamic>.from(imageMap);
-      final mappedUrl = _readString(map, [
-        'url',
-        'imageurl',
-        'imageUrl',
-        'path',
-        'filename',
-      ]);
-      if (mappedUrl != '-' && mappedUrl.trim().isNotEmpty) {
-        return mappedUrl;
-      }
-    }
-
-    return '';
-  }
-
   Future<void> _loadSubCategories() async {
     setState(() {
       _isLoading = true;
@@ -107,63 +54,14 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
     });
 
     try {
-      final response = await http
-          .post(
-            Uri.parse(AppConfig.GET_SUBCATEGORY),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: jsonEncode(widget.categoryId),
-          )
-          .timeout(const Duration(seconds: 15));
-
-      if (response.statusCode != 200) {
-        throw HttpException('Server returned ${response.statusCode}');
-      }
-
-      final decoded = json.decode(response.body);
-      List<dynamic> listItem = <dynamic>[];
-
-      if (decoded is List) {
-        listItem = decoded;
-      } else if (decoded is Map) {
-        if (decoded['data'] is List) {
-          listItem = decoded['data'];
-        } else if (decoded['items'] is List) {
-          listItem = decoded['items'];
-        } else if (decoded['result'] is List) {
-          listItem = decoded['result'];
-        } else if (decoded['list'] is List) {
-          listItem = decoded['list'];
-        } else {
-          listItem = decoded.values.toList();
-        }
-      }
-
-      final loadedSubcategories = <Map<String, dynamic>>[];
-      for (final rawItem in listItem) {
-        if (rawItem == null || rawItem is! Map) continue;
-        loadedSubcategories.add(Map<String, dynamic>.from(rawItem));
-      }
-
+      ApiService _apiService = ApiService();
+      _subcategories = await _apiService.loadSubCategories(widget.categoryId);
       if (!mounted) return;
       setState(() {
-        _subcategories = loadedSubcategories;
+        _filteredSubcategories = _subcategories;
         _isLoading = false;
       });
-    } on TimeoutException {
-      if (!mounted) return;
-      setState(() {
-        _errorMessage = 'Server is taking too long to respond.';
-        _isLoading = false;
-      });
-    } on SocketException {
-      if (!mounted) return;
-      setState(() {
-        _errorMessage = 'Network error. Please check your connection.';
-        _isLoading = false;
-      });
-    } catch (e, stackTrace) {
+    }  catch (e, stackTrace) {
       log('Failed to load subcategories', error: e, stackTrace: stackTrace);
       if (!mounted) return;
       setState(() {
@@ -211,10 +109,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: [
-              Color(0xFFFFF8EA),
-              Color(0xFFF6ECD9),
-            ],
+            colors: [Color(0xFFFFF8EA), Color(0xFFF6ECD9)],
           ),
         ),
         child: SafeArea(
@@ -225,20 +120,21 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
               children: [
                 Breadcrumb(
                   items: [
-                    BreadcrumbItem('Home', onTap: () {
-                      Navigator.of(context).pushAndRemoveUntil(
-                        MaterialPageRoute(builder: (_) => const HomeScreen1()),
-                            (route) => false,
-                      );
-                    }),
+                    BreadcrumbItem(
+                      'Home',
+                      onTap: () {
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(builder: (_) => const HomeScreen1()),
+                          (route) => false,
+                        );
+                      },
+                    ),
                     BreadcrumbItem(widget.categoryName),
                   ],
                 ),
                 _buildSearchBar(),
                 const SizedBox(height: 12),
-                Expanded(
-                  child: _buildBody(),
-                ),
+                Expanded(child: _buildBody()),
               ],
             ),
           ),
@@ -275,10 +171,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                 children: [
                   const Text(
                     'Loaded from DB',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.w700,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
                   ),
                   const SizedBox(height: 4),
                   Text(' ${widget.categoryName}'),
@@ -296,10 +189,26 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
     );
   }
 
+  void searchItem(String searchText) {
+    if (_filteredSubcategories.isNotEmpty) {
+      //_filteredSubcategories  = _subcategories.where((subcat))
+      setState(() {
+        _filteredSubcategories = _subcategories.where((subcat) {
+          return subcat.subcatname.toLowerCase().contains(searchText.toLowerCase());
+        }).toList();
+      });
+    } else {
+      setState(() {
+        _filteredSubcategories = _subcategories;
+      });
+    }
+  }
+
   Widget _buildSearchBar() {
     return TextField(
       controller: _searchController,
-      onChanged: (value) => setState(() => _searchQuery = value),
+      // onChanged: (value) => setState(() => _searchQuery = value),
+      onChanged: (value) => searchItem(value),
       textInputAction: TextInputAction.search,
       decoration: InputDecoration(
         hintText: 'Search ${widget.categoryName} types',
@@ -343,11 +252,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Text(
-              _errorMessage!,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 16),
-            ),
+            Text(_errorMessage!, textAlign: TextAlign.center, style: const TextStyle(fontSize: 16)),
             const SizedBox(height: 12),
             ElevatedButton.icon(
               onPressed: _loadSubCategories,
@@ -360,16 +265,11 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
     }
 
     if (_subcategories.isEmpty) {
-      return const Center(
-        child: Text(
-          'No subcategories found.',
-          style: TextStyle(fontSize: 16),
-        ),
-      );
+      return const Center(child: Text('No subcategories found.', style: TextStyle(fontSize: 16)));
     }
 
-    final subcategories = _filteredSubcategories;
-    if (subcategories.isEmpty) {
+    //final subcategories = _filteredSubcategories;
+    if (_filteredSubcategories.isEmpty) {
       return Center(
         child: Text(
           'No subcategories match "${_searchQuery.trim()}".',
@@ -380,7 +280,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
     }
 
     return GridView.builder(
-      itemCount: subcategories.length,
+      itemCount: _filteredSubcategories.length,
       gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
         crossAxisCount: 2,
         mainAxisSpacing: 14,
@@ -388,30 +288,19 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
         childAspectRatio: 0.82,
       ),
       itemBuilder: (context, index) {
-        final item = subcategories[index];
-        final name = _readString(item, [
-          'subcatname',
-          'subcategoryname',
-          'subcatName',
-          'name',
-        ]);
-        final subcatId = int.tryParse(
-              _readString(item, ['id', 'subcatid', 'subcategoryid']),
-            ) ??
-            0;
-        final imageUrl = _readImageUrl(item);
+
 
         return InkWell(
           onTap: () {
-            if (subcatId <= 0) {
+            if (_filteredSubcategories[index].id <= 0) {
               return;
             }
 
             Navigator.of(context).push(
               MaterialPageRoute(
                 builder: (_) => ProductScreen(
-                  subcategoryId: subcatId,
-                  subcategoryName: name,
+                  subcategoryId: _filteredSubcategories[index].id,
+                  subcategoryName: _filteredSubcategories[index].subcatname,
                   categoryId: widget.categoryId,
                   categoryName: widget.categoryName,
                 ),
@@ -421,8 +310,7 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
           borderRadius: BorderRadius.circular(18),
           child: Card(
             elevation: 5,
-            shape:
-                RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
             clipBehavior: Clip.antiAlias,
             child: Column(
               children: [
@@ -430,28 +318,25 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                   child: Container(
                     width: double.infinity,
                     color: Colors.grey.shade100,
-                    child: imageUrl.isNotEmpty
+                    child: _filteredSubcategories[index].subcatimages.isNotEmpty
                         ? Image.network(
-                            imageUrl,
+                            _filteredSubcategories[index].subcatimages[0],
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
-                              return _buildFallbackAvatar(name);
+                              return _buildFallbackAvatar(_filteredSubcategories[index].subcatname);
                             },
                           )
-                        : _buildFallbackAvatar(name),
+                        : _buildFallbackAvatar(_filteredSubcategories[index].subcatname),
                   ),
                 ),
                 Padding(
                   padding: const EdgeInsets.fromLTRB(12, 10, 12, 12),
                   child: Text(
-                    name,
+                    _filteredSubcategories[index].subcatname,
                     maxLines: 2,
                     textAlign: TextAlign.center,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.w700,
-                      fontSize: 13,
-                    ),
+                    style: const TextStyle(fontWeight: FontWeight.w700, fontSize: 13),
                   ),
                 ),
               ],
@@ -466,15 +351,12 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
     return Center(
       child: Text(
         name.isNotEmpty ? name[0].toUpperCase() : '-',
-        style: const TextStyle(
-          fontWeight: FontWeight.bold,
-          fontSize: 18,
-        ),
+        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
       ),
     );
   }
 
-  Widget _buildBottomNavBar(){
+  Widget _buildBottomNavBar() {
     return Bottombar();
   }
 }

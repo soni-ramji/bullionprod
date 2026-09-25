@@ -6,9 +6,11 @@ import 'dart:io';
 import 'package:bullionprod/main.dart';
 import 'package:bullionprod/screen/AppBarStless.dart';
 import 'package:bullionprod/screen/ProductSearchScreen.dart';
+import 'package:bullionprod/service/APIServices.dart';
+import 'package:bullionprod/widget/ProductWidget.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:bullionprod/widgets/circular_network_image.dart';
+import 'package:bullionprod/widget/circular_network_image.dart';
 import 'package:bullionprod/app_shopping_state.dart';
 import 'package:bullionprod/app_scaffold_messenger.dart';
 import 'package:bullionprod/environment.dart';
@@ -68,302 +70,63 @@ class _HomeScreen1State extends State<HomeScreen1> {
     if (mounted) setState(() {});
   }
 
-  Map<String, dynamic> _productData(ProductModel product) => <String, dynamic>{
-    'id': product.id,
-    'prodname': product.prodname,
-    'prodweight': product.prodweight,
-    'karatpurity': product.karatpurity,
-    'productprice': product.productprice,
-    'imagepath': product.imagepath,
-  };
-
-  String _readString(Map<String, dynamic> item, List<String> keys) {
-    for (final key in keys) {
-      final value = item[key];
-      if (value != null && value.toString().trim().isNotEmpty) {
-        return value.toString().trim();
-      }
-    }
-    return '';
-  }
-
-  bool _readBool(dynamic value) {
-    if (value is bool) return value;
-    final normalized = value?.toString().toLowerCase().trim();
-    return normalized == 'true' || normalized == '1' || normalized == 'yes';
-  }
+  // Map<String, dynamic> _productData(ProductModel product) => <String, dynamic>{
+  //   'id': product.id,
+  //   'prodname': product.prodname,
+  //   'prodweight': product.prodweight,
+  //   'karatpurity': product.karatpurity,
+  //   'productprice': product.productprice,
+  //   'imagepath': product.imagepath,
+  // };
+  //
+  // String _readString(Map<String, dynamic> item, List<String> keys) {
+  //   for (final key in keys) {
+  //     final value = item[key];
+  //     if (value != null && value.toString().trim().isNotEmpty) {
+  //       return value.toString().trim();
+  //     }
+  //   }
+  //   return '';
+  // }
+  //
+  // bool _readBool(dynamic value) {
+  //   if (value is bool) return value;
+  //   final normalized = value?.toString().toLowerCase().trim();
+  //   return normalized == 'true' || normalized == '1' || normalized == 'yes';
+  // }
 
   Future<void> gerAllProducts() async {
-    try {
+
       if (mounted) setState(() => _isLoadingProducts = true);
       List<ProductModel> allProductss = [];
       String url = AppConfig.GET_PRODUCTS;
 
-      final response = await http
-          .get(
-            Uri.parse(url),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-          )
-          .timeout(const Duration(seconds: 20));
-      if (response.statusCode == 200) {
-        final decoded = json.decode(response.body);
-        List<dynamic> listItem = [];
+      ApiService _apiService = ApiService();
+      allProductss =await _apiService.getAllProductCached();
 
-        if (decoded is List) {
-          listItem = decoded;
-        } else if (decoded is Map) {
-          // Common wrapper keys that may contain the list
-          if (decoded['data'] is List) {
-            listItem = decoded['data'];
-          } else if (decoded['items'] is List) {
-            listItem = decoded['items'];
-          } else if (decoded['result'] is List) {
-            listItem = decoded['result'];
-          } else if (decoded['list'] is List) {
-            listItem = decoded['list'];
-          } else {
-            // Fallback: convert map values to a list (handles numeric-keyed objects)
-            listItem = decoded.values.toList();
-          }
-        } else {
-          log('Unexpected JSON type: ${decoded.runtimeType}');
-        }
 
-        log('parsed listItem length: ${listItem.length}');
-
-        for (final rawItem in listItem) {
-          if (rawItem == null) continue;
-          Map<String, dynamic> item;
-          try {
-            item = Map<String, dynamic>.from(rawItem as Map);
-          } catch (e) {
-            // Skip non-map items
-            continue;
-          }
-
-          int id = 0;
-
-          String prodname;
-          double prodweight = 0.0;
-          double karatpurity = 0.0;
-          String searchtext = '';
-
-          List<String> imagepath;
-          // Safely read fields with type checks
-          if (item['id'] != null) {
-            id = (item['id'] is int)
-                ? item['id'] as int
-                : int.tryParse(item['id'].toString()) ?? 0;
-            log('Parsed ProductModel id: $id');
-          }
-          prodname = _readString(item, [
-            'prodname',
-            'prodname',
-            'categoryName',
-            'name',
-          ]);
-          log('Parsed ProductModel prodname: $prodname');
-          searchtext = _readString(item, [
-            'searchtext',
-            'searchtext',
-            'categoryName',
-            'name',
-          ]);
-          if (item['prodweight'] != null) {
-            prodweight = (item['prodweight'] is double)
-                ? item['prodweight'] as double
-                : double.tryParse(item['prodweight'].toString()) ?? 0.0;
-          }
-          if (item['karatpurity'] != null) {
-            karatpurity = (item['karatpurity'] is double)
-                ? item['karatpurity'] as double
-                : double.tryParse(item['karatpurity'].toString()) ?? 0.0;
-          } else if (item['karatPurity'] != null) {
-            karatpurity = (item['karatPurity'] is double)
-                ? item['karatPurity'] as double
-                : double.tryParse(item['karatPurity'].toString()) ?? 0.0;
-          }
-
-          double productprice = 0.0;
-          if (item['productprice'] != null) {
-            productprice = (item['productprice'] is double)
-                ? item['productprice'] as double
-                : double.tryParse(item['productprice'].toString()) ?? 0.0;
-          }
-          // get image path from item['imagepath'] which is a list of strings
-          if (item['imagepath'] != null && item['imagepath'] is List) {
-            imagepath = List<String>.from(item['imagepath']);
-          } else {
-            imagepath = [];
-          }
-
-          ProductModel productModel = ProductModel(
-            id: id,
-            subcatid: 0,
-            prodname: prodname,
-            prodweight: prodweight,
-            prodpurity: 0.0,
-            karatpurity: karatpurity,
-            stamp: 'stamp',
-            wastage: 0.0,
-            labourpergm: 0.0,
-            margin: 0.0,
-            returnpurity: 0.0,
-            ishallmark: false,
-            ishuid: false,
-            huidno: 'huidno',
-            owner: 'ramji',
-            imagepath: imagepath,
-            searchtext: searchtext,
-            productprice: productprice,
-          );
-
-          log('Parsed ProductModel: ${productModel.prodname}');
-          allProductss.add(productModel);
-        }
 
         if (!mounted) return;
         setState(() {
           allproducts = allProductss;
-          filteredProducts = List<ProductModel>.from(allProductss);
+          filteredProducts = allproducts;
           _isLoadingProducts = false;
-         // _applyProductSearch(_searchController.text);
+          // _applyProductSearch(_searchController.text);
           // _stockImageUrls
           //   ..clear()
           //   ..addAll(imageMap);
           log('allProductss is ${allproducts.length}');
         });
-      } else {
-        if (mounted) setState(() => _isLoadingProducts = false);
-        _showErrorSnackBar(
-          'Unable to load categories. Server error (${response.statusCode}).',
-        );
-      }
-    } on TimeoutException {
-      if (mounted) setState(() => _isLoadingProducts = false);
-      _showErrorSnackBar('Server is down or not responding. Please try again.');
-    } on SocketException {
-      if (mounted) setState(() => _isLoadingProducts = false);
-      _showErrorSnackBar('Network is down. Please check internet connection.');
-    } on http.ClientException {
-      if (mounted) setState(() => _isLoadingProducts = false);
-      _showErrorSnackBar('Cannot connect to server. Please check network.');
-    } catch (e) {
-      if (mounted) setState(() => _isLoadingProducts = false);
-      _showErrorSnackBar('Server is down. Please try again later.');
-      log('getAllCategories error: $e');
-    }
   }
 
+
   Future<void> getAllCategory() async {
-    try {
+    // try {
       if (mounted) setState(() => _isLoadingCategories = true);
-      List<CategoryModel> allCategories = [];
-      String url = AppConfig.GET_CATEGORY;
-      log('Fetching categories from URL: $url');
-      int commodityId = 1;
-      String body = jsonEncode(commodityId);
-      final response = await http
-          .post(
-            Uri.parse(url),
-            headers: <String, String>{
-              'Content-Type': 'application/json; charset=UTF-8',
-            },
-            body: body,
-          )
-          .timeout(const Duration(seconds: 20));
+      int? commodityId = 1;
+      ApiService _apiServices = ApiService();
+      List<CategoryModel> allCategories =await _apiServices.getAllCategoryCached(commodityId: commodityId);
 
-      if (response.statusCode == 200) {
-        final decoded = json.decode(response.body);
-        List<dynamic> listItem = [];
-
-        if (decoded is List) {
-          listItem = decoded;
-        } else if (decoded is Map) {
-          if (decoded['data'] is List) {
-            listItem = decoded['data'];
-          } else if (decoded['items'] is List) {
-            listItem = decoded['items'];
-          } else if (decoded['result'] is List) {
-            listItem = decoded['result'];
-          } else if (decoded['list'] is List) {
-            listItem = decoded['list'];
-          } else {
-            listItem = decoded.values.toList();
-          }
-        } else {
-          log('Unexpected JSON type: ${decoded.runtimeType}');
-        }
-
-        log('parsed listItem length: ${listItem.length}');
-
-        for (final rawItem in listItem) {
-          if (rawItem == null) continue;
-          Map<String, dynamic> item;
-          try {
-            item = Map<String, dynamic>.from(rawItem as Map);
-          } catch (e) {
-            continue;
-          }
-
-          int id = 0;
-          String catname = '';
-          bool isactive = false;
-          int commodityId = 0;
-          String commodityName = '';
-          String description = '';
-          String imagepath = '';
-
-          if (item['id'] != null) {
-            id = (item['id'] is int)
-                ? item['id'] as int
-                : int.tryParse(item['id'].toString()) ?? 0;
-          }
-          catname = _readString(item, [
-            'catname',
-            'catName',
-            'categoryName',
-            'name',
-          ]);
-          if (item['isactive'] != null) {
-            isactive = _readBool(item['isactive']);
-          }
-          if (item['commodityId'] != null) {
-            commodityId = (item['commodityId'] is int)
-                ? item['commodityId'] as int
-                : int.tryParse(item['commodityId'].toString()) ?? 0;
-          }
-          if (item['commodityName'] != null) {
-            commodityName = item['commodityName'].toString();
-          }
-          if (item['description'] != null) {
-            description = item['description'].toString();
-          }
-
-          if (item['imagepath'] != null) {
-            imagepath = item['imagepath'].toString();
-          }
-
-          // if (item['imagepath'] != null &&
-          //     item['imagepath'] is Map<String, dynamic>) {
-          //   catimages = Map<String, String>.from(
-          //       item['imagepath'] as Map<String, dynamic>);
-          // }
-
-          CategoryModel categoryModel = CategoryModel(
-            id: id,
-            catname: catname,
-            isactive: isactive,
-            commodityId: commodityId,
-            commodityName: commodityName,
-            description: description,
-            imagepath: imagepath,
-          );
-          log('Parsed CategoryModel: ${categoryModel.imagepath}');
-          allCategories.add(categoryModel);
-        }
 
         if (!mounted) return;
         setState(() {
@@ -371,27 +134,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
           _isLoadingCategories = false;
           log('allCategories is ${allCategories.length}');
         });
-      } else {
-        if (mounted) setState(() => _isLoadingCategories = false);
-        _showErrorSnackBar(
-          'Unable to load categories. Server error (${response.statusCode}).',
-        );
-      }
-    } on TimeoutException catch (e) {
-      log(e.message ?? 'TimeoutException occurred');
-      if (mounted) setState(() => _isLoadingCategories = false);
-      _showErrorSnackBar('Server is down or not responding. Please try again.');
-    } on SocketException {
-      if (mounted) setState(() => _isLoadingCategories = false);
-      _showErrorSnackBar('Network is down. Please check internet connection.');
-    } on http.ClientException {
-      if (mounted) setState(() => _isLoadingCategories = false);
-      _showErrorSnackBar('Cannot connect to server. Please check network.');
-    } catch (e) {
-      if (mounted) setState(() => _isLoadingCategories = false);
-      _showErrorSnackBar('Server is down. Please try again later.');
-      log('getAllCategories error: $e');
-    }
+
   }
 
   void _showErrorSnackBar(String message) {
@@ -660,11 +403,11 @@ class _HomeScreen1State extends State<HomeScreen1> {
   // }
 
   bool _isFavourite(ProductModel product) {
-    return _shoppingState.isFavourite(_productData(product));
+    return _shoppingState.isFavourite(product);
   }
 
   void _toggleFavourite(ProductModel product) {
-    _shoppingState.toggleFavourite(_productData(product));
+    _shoppingState.toggleFavourite(product);
   }
 
   void _openFavouriteList() {
@@ -708,7 +451,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
                         separatorBuilder: (_, _) => const Divider(height: 1),
                         itemBuilder: (context, index) {
                           final product = items[index];
-                          final imagePaths = product['imagepath'];
+                          final imagePaths = product.imagepath;
                           final imageUrl =
                               imagePaths is List && imagePaths.isNotEmpty
                               ? imagePaths.first.toString()
@@ -719,12 +462,12 @@ class _HomeScreen1State extends State<HomeScreen1> {
                               size: 44,
                             ),
                             title: Text(
-                              product['prodname']?.toString() ?? 'Product',
+                              product.prodname.toString() ?? 'Product',
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                             subtitle: Text(
-                              '${product['prodweight'] ?? '-'} gm',
+                              '${product.prodweight ?? '-'} gm',
                             ),
                             trailing: IconButton(
                               onPressed: () =>
@@ -766,11 +509,11 @@ class _HomeScreen1State extends State<HomeScreen1> {
                     final item = items[index];
                     final price =
                         double.tryParse(
-                          item['productprice']?.toString() ?? '',
+                          item.productprice.toString() ?? '',
                         ) ??
                         0;
                     return ListTile(
-                      title: Text(item['prodname']?.toString() ?? 'Product'),
+                      title: Text(item.prodname.toString() ?? 'Product'),
                       subtitle: Text('₹ ${price.toStringAsFixed(2)}'),
                       trailing: const Icon(
                         Icons.shopping_bag_outlined,
@@ -1355,7 +1098,8 @@ class _HomeScreen1State extends State<HomeScreen1> {
                   ),
                   itemCount: filteredProducts.length,
                   itemBuilder: (context, index) {
-                    return _buildProductCard(filteredProducts[index]);
+                    return Productwidget(productModel: filteredProducts[index] );
+                    //return _buildProductCard(filteredProducts[index]);
                   },
                 ),
         ],
@@ -1684,7 +1428,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
                                 child: GestureDetector(
                                   onTap: () {
                                     _shoppingState.addToCart(
-                                      _productData(product),
+                                      product,
                                     );
                                     log(
                                       'Added product to shopping cart. Total items: ${_shoppingState.cartCount}',

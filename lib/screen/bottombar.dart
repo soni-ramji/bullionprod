@@ -59,11 +59,11 @@ class _BottombarState extends State<Bottombar> {
                     final item = items[index];
                     final price =
                         double.tryParse(
-                          item['productprice']?.toString() ?? '',
+                          item.productprice.toString() ?? '',
                         ) ??
                         0;
                     return ListTile(
-                      title: Text(item['prodname']?.toString() ?? 'Product'),
+                      title: Text(item.prodname.toString() ?? 'Product'),
                       subtitle: Text('₹ ${price.toStringAsFixed(2)}'),
                       trailing: const Icon(
                         Icons.shopping_bag_outlined,

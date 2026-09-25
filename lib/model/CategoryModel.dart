@@ -1,20 +1,12 @@
 class CategoryModel {
   int? id;
-
   String? catname;
-
   bool? isactive;
-
   int? commodityId;
-
   String? commodityName;
-
   String? description;
-
   String? imagepath;
-
   String? imagename;
-
   String? imageurl;
 
   CategoryModel({

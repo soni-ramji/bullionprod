@@ -1,4 +1,23 @@
+import 'dart:convert';
+
+import 'package:bullionprod/app_scaffold_messenger.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
 class BullionUtil{
+
+
+  static void showErrorSnackBar(String message) {
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final messenger = AppScaffoldMessenger.key.currentState;
+      if (messenger == null) return;
+      messenger
+        ..hideCurrentSnackBar()
+        ..showSnackBar(
+          SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
+        );
+    });
+  }
 
   static String  readString(Map<String, dynamic> item, List<String> keys) {
     for (final key in keys) {
@@ -65,15 +84,66 @@ class BullionUtil{
     return '';
   }
 
-  static double readDouble(Map<String, dynamic> item, List<String> keys) {
-    for (final key in keys) {
-      final value = item[key];
-      if (value == null) continue;
-      if (value is num) return value.toDouble();
-      final parsed = double.tryParse(value.toString());
-      if (parsed != null) return parsed;
+  // static double readDouble(Map<String, dynamic> item, List<String> keys) {
+  //   for (final key in keys) {
+  //     final value = item[key];
+  //     if (value == null) continue;
+  //     if (value is num) return value.toDouble();
+  //     final parsed = double.tryParse(value.toString());
+  //     if (parsed != null) return parsed;
+  //   }
+  //   return 0;
+  // }
+
+
+  static double readDouble(Map<String, dynamic> json, String fieldName) {
+    double intValue = 0.0;
+    if (json[fieldName] != null) {
+      if (json[fieldName] is double)
+        intValue = json[fieldName] as double;
+      else
+        intValue = double.tryParse(json[fieldName].toString()) ?? 0;
     }
-    return 0;
+    return intValue;
+  }
+  static int readInt(Map<String, dynamic> json,String fieldName){
+    int intValue = 0;
+    if (json[fieldName] != null) {
+      if (json[fieldName] is int)
+        intValue = json[fieldName] as int;
+      else
+        intValue = int.tryParse(json[fieldName].toString()) ?? 0;
+    }
+    return intValue;
+  }
+
+  static String readStringValue(Map<String, dynamic> json, String fieldName) {
+
+
+    return json[fieldName]?.toString() ??'';
+
+  }
+
+  static bool readBool(Map<String, dynamic> json,String fieldName){
+    bool isBool = false;
+    if (json[fieldName] != null) {
+      if (json[fieldName] is bool)
+        isBool = json[fieldName] as bool;
+      else
+        isBool = bool.tryParse(json[fieldName].toString()) ?? false;
+    }
+    return isBool;
+  }
+
+  static List<String> readListStringValue(Map<String, dynamic> json, String fieldName) {
+    List<String> imagepath;
+
+    if (json[fieldName] != null && json[fieldName] is List) {
+      imagepath = List<String>.from(json[fieldName]);
+    } else {
+      imagepath = [];
+    }
+  return imagepath;
   }
 
 }

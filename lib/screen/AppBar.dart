@@ -2,7 +2,7 @@ import 'package:bullionprod/app_shopping_state.dart';
 import 'package:bullionprod/screen/commodityrate.dart';
 import 'package:bullionprod/screen/contactus.dart';
 import 'package:bullionprod/screen/login_screen.dart';
-import 'package:bullionprod/widgets/circular_network_image.dart';
+import 'package:bullionprod/widget/circular_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -274,7 +274,7 @@ class _AppbarState extends State<Appbar> {
                   separatorBuilder: (_, _) => const Divider(height: 1),
                   itemBuilder: (context, index) {
                     final product = items[index];
-                    final imagePaths = product['imagepath'];
+                    final imagePaths = product.imagepath;
                     final imageUrl =
                     imagePaths is List && imagePaths.isNotEmpty
                         ? imagePaths.first.toString()
@@ -282,12 +282,12 @@ class _AppbarState extends State<Appbar> {
                     return ListTile(
                       leading: CircularNetworkImage(url: imageUrl, size: 44),
                       title: Text(
-                        product['prodname']?.toString() ?? 'Product',
+                        product.prodname.toString() ?? 'Product',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
                       subtitle: Text(
-                        '${product['prodweight'] ?? '-'} gm',
+                        '${product.prodweight ?? '-'} gm',
                       ),
                       trailing: IconButton(
                         onPressed: () =>
@@ -337,10 +337,10 @@ class _AppbarState extends State<Appbar> {
             itemBuilder: (context, index) {
               final item = items[index];
               final price = double.tryParse(
-                  item['productprice']?.toString() ?? '') ??
+                  item.productprice.toString() ?? '') ??
                   0;
               return ListTile(
-                title: Text(item['prodname']?.toString() ?? 'Product'),
+                title: Text(item.prodname.toString() ?? 'Product'),
                 subtitle: Text(
                   '₹ ${price.toStringAsFixed(2)}',
                 ),
