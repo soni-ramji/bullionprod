@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:bullionprod/environment.dart';
 import 'package:bullionprod/model/CategoryModel.dart';
+import 'package:bullionprod/model/CommodityRateModel.dart';
 import 'package:bullionprod/model/CusomerSignupModel.dart';
 import 'package:bullionprod/model/CustomerLoginModel.dart';
 import 'package:bullionprod/model/ProductModel.dart';
@@ -21,7 +22,7 @@ class ApiService {
 
   Future<List<ProductModel>> getAllProductCached({bool forceRefresh = false}) async {
     if (!forceRefresh && _cachedProduct != null && _cachedProduct!.isNotEmpty) {
-      logger.d('ProductService: returning cached categories (${_cachedProduct!.length})');
+      logger.d('ProductService: returning cached products (${_cachedProduct!.length})');
       return _cachedProduct!;
     }
 
@@ -92,7 +93,7 @@ class ApiService {
   ) async {
     try {
       String url = AppConfig.SEARCH_PRODUCT_DIO;
-      logger.d('Fetching categories from URL: $url');
+      logger.d('Fetching loadProdBySearchCriteria from URL: $url');
       String body = jsonEncode(productsearchcriteria);
       final response = await _client.dio.post(url, data: body);
 
@@ -100,7 +101,7 @@ class ApiService {
         List<dynamic> data = response.data;
         return data.map((json) => ProductModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to getCustomerId: ${response.statusCode}');
+        throw Exception('Failed to loadProdBySearchCriteria: ${response.statusCode}');
       }
     } on DioException catch (e) {
       print(e.stackTrace);
@@ -114,7 +115,7 @@ class ApiService {
   Future<List<SubCategoryModel>> loadSubCategories(int categoryId) async {
     try {
       String url = AppConfig.GET_SUBCATEGORY_DIO;
-      logger.d('Fetching categories from URL: $url');
+      logger.d('Fetching loadSubCategories from URL: $url');
       String body = jsonEncode(categoryId);
       final response = await _client.dio.post(url, data: body);
 
@@ -122,7 +123,7 @@ class ApiService {
         List<dynamic> data = response.data;
         return data.map((json) => SubCategoryModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to getCustomerId: ${response.statusCode}');
+        throw Exception('Failed to loadSubCategories: ${response.statusCode}');
       }
     } on DioException catch (e) {
       print(e.stackTrace);
@@ -132,7 +133,7 @@ class ApiService {
 
   Future<List<ProductModel>> getAllProductsBySubCatId(int subcatId) async {
     try {
-      List<ProductModel> allProductss = [];
+
       String url = AppConfig.GET_PRODUCT_DIO;
 
       String body = jsonEncode(subcatId);
@@ -142,7 +143,7 @@ class ApiService {
         List<dynamic> data = response.data;
         return data.map((json) => ProductModel.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to getCustomerId: ${response.statusCode}');
+        throw Exception('Failed to getAllProductsBySubCatId: ${response.statusCode}');
       }
     } on DioException catch (e) {
       print(e.stackTrace);
@@ -192,5 +193,34 @@ class ApiService {
       print(e.stackTrace);
       throw Exception('Network error: ${e.message}');
     }
+  }
+
+  Future<CommodityRateModel?> getCommodityRate() async {
+    String url = AppConfig.GET_COMMODITY_RATE_DIO;
+    try {
+      final response = await _client.dio.get(url);
+
+      if (response.statusCode == 200) {
+        final raw = response.data;
+
+        // if (raw is CommodityRateModel) {
+        //   return raw;
+        // }
+
+        if (raw is Map) {
+          return CommodityRateModel.fromJson(Map<String, dynamic>.from(raw));
+        }
+
+        if (raw is List && raw.isNotEmpty && raw.first is Map) {
+          return CommodityRateModel.fromJson(Map<String, dynamic>.from(raw.first));
+        }
+
+        return null;
+      }
+    } on DioException catch (e) {
+      print(e.stackTrace);
+      throw Exception('Network error: ${e.message}');
+    }
+    return null;
   }
 }

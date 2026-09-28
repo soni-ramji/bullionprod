@@ -363,6 +363,40 @@ class _ProductScreenState extends State<ProductScreen> {
                         },
                       ),
               ),
+              Padding(
+               padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+               child: SizedBox(
+                 width: double.infinity,
+                 child: ElevatedButton(
+                   onPressed: _shoppingState.cart.isEmpty
+                       ? null
+                       : () {
+                           Navigator.of(context).pop();
+                           ScaffoldMessenger.of(context).showSnackBar(
+                             const SnackBar(
+                               content: Text('Cart submitted successfully.'),
+                               behavior: SnackBarBehavior.floating,
+                             ),
+                           );
+                         },
+                   style: ElevatedButton.styleFrom(
+                     backgroundColor: const Color(0xFF5C4300),
+                     foregroundColor: Colors.white,
+                     padding: const EdgeInsets.symmetric(vertical: 14),
+                     shape: RoundedRectangleBorder(
+                       borderRadius: BorderRadius.circular(10),
+                     ),
+                   ),
+                   child: const Text(
+                     'Submit',
+                     style: TextStyle(
+                       fontSize: 16,
+                       fontWeight: FontWeight.w600,
+                     ),
+                   ),
+                 ),
+               ),
+              ),
             ],
           ),
         );

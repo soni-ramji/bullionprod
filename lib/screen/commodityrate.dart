@@ -1,7 +1,9 @@
 import 'dart:convert';
 
 import 'package:bullionprod/environment.dart';
+import 'package:bullionprod/model/CommodityRateModel.dart';
 import 'package:bullionprod/screen/bottombar.dart';
+import 'package:bullionprod/service/APIServices.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -29,31 +31,19 @@ class _CommodityrateState extends State<Commodityrate> {
     String url = AppConfig.GET_COMMODITY_RATE;
     try {
 
-
-      final response = await http
-          .get(
-        Uri.parse(url),
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-
-      )
-          .timeout(const Duration(seconds: 15));
+    ApiService _apiService = ApiService();
+    CommodityRateModel? commodityRateModel = await _apiService.getCommodityRate();
       // completer.complete(response);
-      if (response.statusCode == 200) {
-        final decoded = json.decode(response.body);
+
 
 
       setState(() {
-          gold24k = decoded['goldsell'];
+          gold24k = commodityRateModel?.goldsell?? 0.0;
           gold22k = gold24k*22/24;
           gold18k = gold24k*18/24;
-          silverrate = decoded['silversell'];
+          silverrate = commodityRateModel?.silversell?? 0.0;
         });
-      } else {
-        // Handle error response
-        print('Error: ${response.statusCode}');
-      }
+
     } catch (e) {
       print('Exception occurred: $e');
     }

@@ -46,32 +46,99 @@ class _BottombarState extends State<Bottombar> {
         borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
       ),
       builder: (context) {
-        final items = _shoppingState.cart;
-        return SizedBox(
-          height: MediaQuery.of(context).size.height * 0.65,
-          child: items.isEmpty
-              ? const Center(child: Text('No products in cart.'))
-              : ListView.separated(
-                  padding: const EdgeInsets.symmetric(vertical: 12),
-                  itemCount: items.length,
-                  separatorBuilder: (_, _) => const Divider(height: 1),
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-                    final price =
-                        double.tryParse(
-                          item.productprice.toString() ?? '',
-                        ) ??
-                        0;
-                    return ListTile(
-                      title: Text(item.prodname.toString() ?? 'Product'),
-                      subtitle: Text('₹ ${price.toStringAsFixed(2)}'),
-                      trailing: const Icon(
-                        Icons.shopping_bag_outlined,
-                        color: Color(0xFFD4AF37),
+        return StatefulBuilder(
+          builder: (context, setModalState) {
+            final items = _shoppingState.cart;
+            return SizedBox(
+              height: MediaQuery.of(context).size.height * 0.65,
+              child: Column(
+                children: [
+                  const SizedBox(height: 12),
+                  Container(
+                    width: 42,
+                    height: 4,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[400],
+                      borderRadius: BorderRadius.circular(2),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  const Text(
+                    'Cart Products',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                  ),
+                  const SizedBox(height: 10),
+                  Expanded(
+                    child: items.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'No products in cart.',
+                              style: TextStyle(color: Colors.black54),
+                            ),
+                          )
+                        : ListView.separated(
+                            padding: const EdgeInsets.symmetric(vertical: 8),
+                            itemCount: items.length,
+                            separatorBuilder: (_, _) => const Divider(height: 1),
+                            itemBuilder: (context, index) {
+                              final item = items[index];
+                              final price =
+                                  double.tryParse(item.productprice.toString()) ?? 0;
+                              return ListTile(
+                                title: Text(item.prodname.toString()),
+                                subtitle: Text('₹ ${price.toStringAsFixed(2)}'),
+                                trailing: IconButton(
+                                  onPressed: () {
+                                    _shoppingState.removeFromCart(item);
+                                    setModalState(() {});
+                                  },
+                                  icon: const Icon(
+                                    Icons.delete_outline,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 16),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton(
+                        onPressed: items.isEmpty
+                            ? null
+                            : () {
+                                Navigator.of(context).pop();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Cart submitted successfully.'),
+                                    behavior: SnackBarBehavior.floating,
+                                  ),
+                                );
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF5C4300),
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                        ),
+                        child: const Text(
+                          'Submit',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
         );
       },
     );

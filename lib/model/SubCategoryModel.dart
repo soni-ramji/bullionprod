@@ -8,7 +8,7 @@ class SubCategoryModel {
   bool isactive;
   bool isformobile;
 
-  List<String> subcatimages;
+  String subcatimages;
 
 
   SubCategoryModel({
@@ -45,7 +45,8 @@ class SubCategoryModel {
       isactive: BullionUtil.readBool(json, 'isactive'),
       isformobile: BullionUtil.readBool(json, ' isformobile'),
 
-      subcatimages: BullionUtil.readListStringValue(json, 'subcatimages'),
+      // subcatimages: BullionUtil.readListStringValue(json, 'subcatimages'),
+      subcatimages: (json['subcatimages']?.toString() ?? '' ),
 
     );
   }

@@ -2,7 +2,7 @@
 // Use `--dart-define=ENV=prod` when building for production.
 
 class AppConfig {
-  static const String env = String.fromEnvironment('ENV', defaultValue: 'dev');
+  static const String env = String.fromEnvironment('ENV', defaultValue: 'prod');
 
    static const String _devBase = 'http://192.168.29.199:8090/bullionadmin';
    static const String _prodBase = 'https://pme4lcrbfc.execute-api.us-east-1.amazonaws.com/dev';
@@ -47,4 +47,7 @@ class AppConfig {
   static String get CUSTOMER_LOGIN_DIO => '/customer/getmobilecustomer';
 
   static String get CUSTOMER_SIGNUP_DIO => '/customer/addmobilecustomer';
+
+  static String get GET_COMMODITY_RATE_DIO => '/commodity/getcommoditiesrate';
+
 }

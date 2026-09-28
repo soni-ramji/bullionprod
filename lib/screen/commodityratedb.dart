@@ -8,14 +8,14 @@ import 'package:bullionprod/model/commoditymodel.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
-class comodityratedb extends StatefulWidget {
-  const comodityratedb({super.key});
+class comodityratedb1 extends StatefulWidget {
+  const comodityratedb1({super.key});
 
   @override
-  State<comodityratedb> createState() => _comodityratedbState();
+  State<comodityratedb1> createState() => _comodityratedbState();
 }
 
-class _comodityratedbState extends State<comodityratedb> {
+class _comodityratedbState extends State<comodityratedb1> {
 
  List<commoditymodel> allcommodity= [];
 

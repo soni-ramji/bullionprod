@@ -318,9 +318,9 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                   child: Container(
                     width: double.infinity,
                     color: Colors.grey.shade100,
-                    child: _filteredSubcategories[index].subcatimages.isNotEmpty
+                    child: _filteredSubcategories[index].subcatimages!=''
                         ? Image.network(
-                            _filteredSubcategories[index].subcatimages[0],
+                            _filteredSubcategories[index].subcatimages,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) {
                               return _buildFallbackAvatar(_filteredSubcategories[index].subcatname);
