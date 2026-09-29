@@ -8,6 +8,7 @@ import 'package:bullionprod/screen/bottombar.dart';
 import 'package:bullionprod/screen/home1.dart';
 import 'package:bullionprod/service/APIServices.dart';
 import 'package:bullionprod/widget/breadcrumb.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
@@ -319,13 +320,27 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
                     width: double.infinity,
                     color: Colors.grey.shade100,
                     child: _filteredSubcategories[index].subcatimages!=''
-                        ? Image.network(
-                            _filteredSubcategories[index].subcatimages,
-                            fit: BoxFit.cover,
-                            errorBuilder: (context, error, stackTrace) {
-                              return _buildFallbackAvatar(_filteredSubcategories[index].subcatname);
-                            },
-                          )
+                        ?
+                    CachedNetworkImage(
+                      imageUrl: _filteredSubcategories[index].subcatimages,
+                      fit: BoxFit.cover,
+                      width: double.infinity,
+                      height: double.infinity,
+                      memCacheWidth: 190,
+                      placeholder: (context, url) => const Center(
+                        child: CircularProgressIndicator(
+                          strokeWidth: 1,
+                        ),
+                      ),
+                      errorWidget: (context, url, error) => const Icon(Icons.error),
+                    )
+                    // Image.network(
+                    //         _filteredSubcategories[index].subcatimages,
+                    //         fit: BoxFit.cover,
+                    //         errorBuilder: (context, error, stackTrace) {
+                    //           return _buildFallbackAvatar(_filteredSubcategories[index].subcatname);
+                    //         },
+                    //       )
                         : _buildFallbackAvatar(_filteredSubcategories[index].subcatname),
                   ),
                 ),

@@ -49,4 +49,9 @@ class AppShoppingState extends ChangeNotifier {
     _cart.removeWhere((item) => keyFor(item) == key);
     notifyListeners();
   }
+
+  void clearCart() {
+
+    _cart.clear();
+  }
 }

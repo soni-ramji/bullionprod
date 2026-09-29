@@ -53,7 +53,7 @@ class ApiService {
       List<ProductModel> allProductss = [];
       String url = AppConfig.GET_PRODUCTS_DIO;
 
-      final response = await _client.dio.get(url);
+      final response = await _client.getWithRetry(url, receiveTimeout: const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
@@ -73,7 +73,7 @@ class ApiService {
       String url = AppConfig.GET_CATEGORY_DIO;
       logger.d('Fetching categories from URL: $url');
       String body = jsonEncode(commodityId);
-      final response = await _client.dio.post(url, data: body);
+      final response = await _client.postWithRetry(url, data: body, receiveTimeout: const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
@@ -95,7 +95,7 @@ class ApiService {
       String url = AppConfig.SEARCH_PRODUCT_DIO;
       logger.d('Fetching loadProdBySearchCriteria from URL: $url');
       String body = jsonEncode(productsearchcriteria);
-      final response = await _client.dio.post(url, data: body);
+      final response = await _client.postWithRetry(url, data: body, receiveTimeout: const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
@@ -117,7 +117,7 @@ class ApiService {
       String url = AppConfig.GET_SUBCATEGORY_DIO;
       logger.d('Fetching loadSubCategories from URL: $url');
       String body = jsonEncode(categoryId);
-      final response = await _client.dio.post(url, data: body);
+      final response = await _client.postWithRetry(url, data: body, receiveTimeout: const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
@@ -137,7 +137,7 @@ class ApiService {
       String url = AppConfig.GET_PRODUCT_DIO;
 
       String body = jsonEncode(subcatId);
-      final response = await _client.dio.post(url, data: body);
+      final response = await _client.postWithRetry(url, data: body, receiveTimeout: const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         List<dynamic> data = response.data;
@@ -157,7 +157,7 @@ class ApiService {
     final url = AppConfig.CUSTOMER_LOGIN_DIO;
     try {
       String body = jsonEncode(loginModel);
-      final response = await _client.dio.post(url, data: body);
+      final response = await _client.postWithRetry(url, data: body, receiveTimeout: const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         // Try to parse integer from body or from a JSON field named 'customerId' or 'id'
@@ -179,7 +179,7 @@ class ApiService {
     final url = AppConfig.CUSTOMER_SIGNUP_DIO;
     try {
       String body = jsonEncode(loginModel);
-      final response = await _client.dio.post(url, data: body);
+      final response = await _client.postWithRetry(url, data: body, receiveTimeout: const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         // Try to parse integer from body or from a JSON field named 'customerId' or 'id'
@@ -198,7 +198,7 @@ class ApiService {
   Future<CommodityRateModel?> getCommodityRate() async {
     String url = AppConfig.GET_COMMODITY_RATE_DIO;
     try {
-      final response = await _client.dio.get(url);
+      final response = await _client.getWithRetry(url, receiveTimeout: const Duration(seconds: 60));
 
       if (response.statusCode == 200) {
         final raw = response.data;

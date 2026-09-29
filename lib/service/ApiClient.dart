@@ -7,10 +7,62 @@ class ApiClient {
     BaseOptions(
       baseUrl: AppConfig.baseUrl,
       connectTimeout: const Duration(seconds: 15), // Enforce connection timeout
-      receiveTimeout: const Duration(seconds: 15),
+      receiveTimeout: const Duration(seconds: 30), // increased default receive timeout
       headers: {'Content-Type': 'application/json'},
     ),
   );
+
+  /// Execute GET with optional receive timeout and simple retry/backoff.
+  Future<Response<T>> getWithRetry<T>(
+    String path, {
+    Duration? receiveTimeout,
+    int retries = 2,
+    Map<String, dynamic>? queryParameters,
+  }) async {
+    int attempt = 0;
+    while (true) {
+      try {
+        final options = Options(receiveTimeout: receiveTimeout ?? _dio.options.receiveTimeout);
+        return await _dio.get<T>(path, options: options, queryParameters: queryParameters);
+      } on DioException catch (e) {
+        attempt++;
+        if (attempt > retries) rethrow;
+        // If server returned a client error (4xx), don't retry
+        final status = e.response?.statusCode ?? 0;
+        if (status >= 400 && status < 500) rethrow;
+
+        // Otherwise assume transient network issue — exponential backoff and retry
+        await Future.delayed(Duration(milliseconds: 500 * (1 << (attempt - 1))));
+        continue;
+      }
+    }
+  }
+
+  /// Execute POST with optional receive timeout and simple retry/backoff.
+  Future<Response<T>> postWithRetry<T>(
+    String path, {
+    Object? data,
+    Duration? receiveTimeout,
+    int retries = 2,
+  }) async {
+    int attempt = 0;
+    while (true) {
+      try {
+        final options = Options(receiveTimeout: receiveTimeout ?? _dio.options.receiveTimeout);
+        return await _dio.post<T>(path, data: data, options: options);
+      } on DioException catch (e) {
+        attempt++;
+        if (attempt > retries) rethrow;
+        // If server returned a client error (4xx), don't retry
+        final status = e.response?.statusCode ?? 0;
+        if (status >= 400 && status < 500) rethrow;
+
+        // Otherwise assume transient network issue — exponential backoff and retry
+        await Future.delayed(Duration(milliseconds: 500 * (1 << (attempt - 1))));
+        continue;
+      }
+    }
+  }
 
   ApiClient() {
     // Register interceptors in the order you want them to execute

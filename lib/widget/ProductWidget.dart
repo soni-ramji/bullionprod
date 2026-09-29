@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'package:bullionprod/app_shopping_state.dart';
 import 'package:bullionprod/model/ProductModel.dart';
 import 'package:bullionprod/service/BullionUtil.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -144,19 +145,32 @@ class _ProductwidgetState extends State<Productwidget> {
                   children: [
                     Positioned.fill(
                       child: product.imagepath.isNotEmpty
-                          ? Image.network(
-                        product.imagepath[0],
+                          ? CachedNetworkImage(
+                        imageUrl: product.imagepath[0],
                         fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.grey[200],
-                            alignment: Alignment.center,
-                            child: _buildProductFallbackAvatar(
-                              product.prodname,
-                            ),
-                          );
-                        },
+                        width: double.infinity,
+                        height: double.infinity,
+                        memCacheWidth: 190,
+                        placeholder: (context, url) => const Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 1,
+                          ),
+                        ),
+                        errorWidget: (context, url, error) => const Icon(Icons.error),
                       )
+                      // Image.network(
+                      //   product.imagepath[0],
+                      //   fit: BoxFit.cover,
+                      //   errorBuilder: (context, error, stackTrace) {
+                      //     return Container(
+                      //       color: Colors.grey[200],
+                      //       alignment: Alignment.center,
+                      //       child: _buildProductFallbackAvatar(
+                      //         product.prodname,
+                      //       ),
+                      //     );
+                      //   },
+                      // )
                           : Container(
                         color: Colors.grey[200],
                         alignment: Alignment.center,

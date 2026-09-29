@@ -4,6 +4,7 @@ import 'package:bullionprod/screen/contactus.dart';
 import 'package:bullionprod/screen/home.dart';
 import 'package:bullionprod/screen/home1.dart';
 import 'package:bullionprod/screen/login_screen.dart';
+import 'package:bullionprod/screen/thankyou.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/logger.dart';
 
@@ -109,12 +110,17 @@ class _BottombarState extends State<Bottombar> {
                         onPressed: items.isEmpty
                             ? null
                             : () {
+                          _shoppingState.clearCart();
                                 Navigator.of(context).pop();
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   const SnackBar(
                                     content: Text('Cart submitted successfully.'),
                                     behavior: SnackBarBehavior.floating,
                                   ),
+                                );
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const ThankYou()),
                                 );
                               },
                         style: ElevatedButton.styleFrom(

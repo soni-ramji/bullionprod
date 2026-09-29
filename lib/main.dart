@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bullionprod/screen/SplashScreen.dart';
 import 'package:bullionprod/screen/contactus.dart';
 import 'package:bullionprod/screen/home.dart';
 import 'package:bullionprod/screen/home1.dart';
@@ -38,7 +39,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const HomeScreen1(),
+      home: const Splashscreen(),
 
     );
   }

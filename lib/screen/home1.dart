@@ -8,6 +8,7 @@ import 'package:bullionprod/main.dart';
 import 'package:bullionprod/screen/ProductSearchScreen.dart';
 import 'package:bullionprod/service/APIServices.dart';
 import 'package:bullionprod/widget/ProductWidget.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:bullionprod/widget/circular_network_image.dart';
@@ -43,6 +44,9 @@ class _HomeScreen1State extends State<HomeScreen1> {
   int _currentBannerIndex = 0;
   int _selectedCategory = 0;
   int _selectedNavIndex = 0;
+  int _topPicksVisible = 4; // number of top picks to show initially
+  final List<GlobalKey> _topPickKeys = []; // keys for each top-pick item to enable scrolling
+
   final TextEditingController _searchController = TextEditingController();
   late final Future<void> _homeDataFuture;
   int customerId = -1;
@@ -668,14 +672,26 @@ class _HomeScreen1State extends State<HomeScreen1> {
           : '${AppConfig.baseUrl}${imageUrl.startsWith('/') ? '' : '/'}$imageUrl';
       return CircularNetworkImage(url: finalUrl, size: 80);
     }
-
-    return Icon(
-      _getCategoryIcon(index),
-      size: 32,
-      color: _selectedCategory == index
-          ? const Color(0xFFD4AF37)
-          : Colors.grey[600],
-    );
+    return CachedNetworkImage(
+    imageUrl: imageUrl,
+    fit: BoxFit.cover,
+    width: double.infinity,
+    height: double.infinity,
+    memCacheWidth: 190,
+    placeholder: (context, url) => const Center(
+      child: CircularProgressIndicator(
+        strokeWidth: 1,
+      ),
+    ),
+    errorWidget: (context, url, error) => const Icon(Icons.error),
+  );
+    // return Icon(
+    //   _getCategoryIcon(index),
+    //   size: 32,
+    //   color: _selectedCategory == index
+    //       ? const Color(0xFFD4AF37)
+    //       : Colors.grey[600],
+    // );
   }
 
   Widget _buildTopPicks() {
@@ -745,20 +761,92 @@ class _HomeScreen1State extends State<HomeScreen1> {
                     ),
                   ),
                 )
-              : GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    crossAxisSpacing: 12,
-                    mainAxisSpacing: 16,
-                    childAspectRatio: 0.66,
-                  ),
-                  itemCount: filteredProducts.length,
-                  itemBuilder: (context, index) {
-                    return Productwidget(productModel: filteredProducts[index] );
-                    //return _buildProductCard(filteredProducts[index]);
-                  },
+              : Column(
+                  children: [
+                    // ensure there are keys for products
+                    () {
+                      while (_topPickKeys.length < filteredProducts.length) {
+                        _topPickKeys.add(GlobalKey());
+                      }
+                      return GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: 2,
+                          crossAxisSpacing: 12,
+                          mainAxisSpacing: 16,
+                          childAspectRatio: 0.66,
+                        ),
+                        // show only a slice of products based on _topPicksVisible
+                        itemCount: filteredProducts.length > _topPicksVisible
+                            ? _topPicksVisible
+                            : filteredProducts.length,
+                        itemBuilder: (context, index) {
+                          return KeyedSubtree(
+                            key: _topPickKeys[index],
+                            child: Productwidget(productModel: filteredProducts[index]),
+                          );
+                        },
+                      );
+                    }(),
+
+                    // View more button aligned bottom-right
+                    if (filteredProducts.length > _topPicksVisible)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Row(
+                          children: [
+                            const Spacer(),
+                            TextButton(
+                              onPressed: () {
+                                final previousVisible = _topPicksVisible;
+                                setState(() {
+                                  _topPicksVisible = (_topPicksVisible + 4).clamp(0, filteredProducts.length);
+                                });
+
+                                // after the frame renders the newly visible items, scroll to the first newly revealed item
+                                WidgetsBinding.instance.addPostFrameCallback((_) {
+                                  final firstNewIndex = previousVisible;
+                                  if (firstNewIndex < _topPickKeys.length) {
+                                    final keyContext = _topPickKeys[firstNewIndex].currentContext;
+                                    if (keyContext != null) {
+                                      Scrollable.ensureVisible(
+                                        keyContext,
+                                        duration: const Duration(milliseconds: 400),
+                                        curve: Curves.easeInOut,
+                                        alignment: 0.1,
+                                      );
+                                    } else {
+                                      // fallback: scroll to products section
+                                      final productsContext = _productsSectionKey.currentContext;
+                                      if (productsContext != null) {
+                                        Scrollable.ensureVisible(
+                                          productsContext,
+                                          duration: const Duration(milliseconds: 400),
+                                          curve: Curves.easeInOut,
+                                        );
+                                      }
+                                    }
+                                  }
+                                });
+                              },
+                              style: TextButton.styleFrom(
+                                foregroundColor: const Color(0xFF5C4300),
+                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                              ),
+                              child: const Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Text('View more', style: TextStyle(fontWeight: FontWeight.w600)),
+                                  SizedBox(width: 6),
+                                  Icon(Icons.arrow_forward, size: 16),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
                 ),
         ],
       ),
