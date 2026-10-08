@@ -38,6 +38,8 @@ class ApiClient {
     }
   }
 
+
+
   /// Execute POST with optional receive timeout and simple retry/backoff.
   Future<Response<T>> postWithRetry<T>(
     String path, {
@@ -45,6 +47,7 @@ class ApiClient {
     Duration? receiveTimeout,
     int retries = 2,
   }) async {
+
     int attempt = 0;
     while (true) {
       try {
@@ -134,9 +137,9 @@ class ApiClient {
   // }
 
   // Mock token refresh helper function
-  Future<String> _refreshAccessToken() async {
-    // Perform fresh API call to fetch a new token pair using refresh tokens
-    await Future.delayed(const Duration(milliseconds: 500));
-    return 'new_refreshed_jwt_token';
-  }
+  // Future<String> _refreshAccessToken() async {
+  //   // Perform fresh API call to fetch a new token pair using refresh tokens
+  //   await Future.delayed(const Duration(milliseconds: 500));
+  //   return 'new_refreshed_jwt_token';
+  // }
 }

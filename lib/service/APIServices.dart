@@ -70,6 +70,7 @@ class ApiService {
   Future<List<CategoryModel>> getAllCategory(int? commodityId) async {
     List<CategoryModel> allCategories = [];
     try {
+     // final fullUrl = '${AppConfig.baseUrl}${AppConfig.GET_CATEGORY_DIO}';
       String url = AppConfig.GET_CATEGORY_DIO;
       logger.d('Fetching categories from URL: $url');
       String body = jsonEncode(commodityId);

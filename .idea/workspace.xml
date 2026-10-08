@@ -20,6 +20,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="252c9289-d3be-4067-ae74-64ee753f1612" name="Changes" comment="">
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/8.14/checksums/checksums.lock" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/8.14/checksums/md5-checksums.bin" beforeDir="false" />
@@ -36,15 +37,16 @@
       <change beforePath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/outputFiles.bin" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/buildOutputCleanup/outputFiles.bin" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/.gradle/file-system.probe" beforeDir="false" afterPath="$PROJECT_DIR$/android/.gradle/file-system.probe" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" beforeDir="false" afterPath="$PROJECT_DIR$/android/app/src/main/java/io/flutter/plugins/GeneratedPluginRegistrant.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/app/src/main/kotlin/com/example/bullionprod/MainActivity.kt" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/android/local.properties" beforeDir="false" afterPath="$PROJECT_DIR$/android/local.properties" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/bullionprod.iml" beforeDir="false" afterPath="$PROJECT_DIR$/bullionprod.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ios/Runner/GeneratedPluginRegistrant.m" beforeDir="false" afterPath="$PROJECT_DIR$/ios/Runner/GeneratedPluginRegistrant.m" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/environment.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/environment.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/home1.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/home1.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/model/CusomerSignupModel.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/model/CusomerSignupModel.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/screen/login_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/login_screen.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/screen/purchase_item_screen.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/screen/purchase_item_screen.dart" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/lib/service/APIServices.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/service/APIServices.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/service/BullionUtil.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/service/BullionUtil.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/service/customer_purchase_service.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/service/customer_purchase_service.dart" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/service/login_service.dart" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/widget/ProductWidget.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/widget/ProductWidget.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/lib/service/ApiClient.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/service/ApiClient.dart" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pubspec.yaml" beforeDir="false" afterPath="$PROJECT_DIR$/pubspec.yaml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -132,7 +134,7 @@
     "io.flutter.project.isFirstOpen": "true",
     "io.flutter.reload.alreadyRun": "true",
     "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "/Users/apple/workspace/flutter/bullionprod/lib/service",
+    "last_opened_file_path": "/Users/apple/workspace/flutter/bullionprod/lib/screen",
     "project.structure.last.edited": "Modules",
     "project.structure.proportion": "0.0",
     "project.structure.side.proportion": "0.0",
@@ -142,9 +144,9 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/lib/screen" />
       <recent name="$PROJECT_DIR$/lib/service" />
       <recent name="$PROJECT_DIR$/assests" />
-      <recent name="$PROJECT_DIR$/lib/screen" />
       <recent name="$PROJECT_DIR$/android/app/src/main/res/mipmap-hdpi" />
       <recent name="$PROJECT_DIR$/android/app/src/main/res/icons" />
     </key>
@@ -255,16 +257,6 @@
           <option name="timeStamp" value="21" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/screen/commodityrate.dart</url>
-          <line>32</line>
-          <option name="timeStamp" value="23" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="Dart">
-          <url>file://$PROJECT_DIR$/lib/screen/commodityrate.dart</url>
-          <line>42</line>
-          <option name="timeStamp" value="24" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/screen/home.dart</url>
           <line>586</line>
           <option name="timeStamp" value="25" />
@@ -281,10 +273,28 @@
         </line-breakpoint>
         <line-breakpoint enabled="true" type="Dart">
           <url>file://$PROJECT_DIR$/lib/screen/productscreen.dart</url>
-          <line>773</line>
+          <line>647</line>
           <option name="timeStamp" value="46" />
         </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/service/APIServices.dart</url>
+          <line>209</line>
+          <option name="timeStamp" value="49" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/service/APIServices.dart</url>
+          <line>221</line>
+          <option name="timeStamp" value="53" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" type="Dart">
+          <url>file://$PROJECT_DIR$/lib/service/APIServices.dart</url>
+          <line>179</line>
+          <option name="timeStamp" value="55" />
+        </line-breakpoint>
       </breakpoints>
+      <default-breakpoints>
+        <breakpoint type="dart-exception" />
+      </default-breakpoints>
     </breakpoint-manager>
   </component>
 </project>

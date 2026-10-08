@@ -1,12 +1,23 @@
 // Centralized environment configuration.
 // Use `--dart-define=ENV=prod` when building for production.
+// Use `--dart-define=API_BASE_URL=http://10.0.2.2:8090/bullionadmin` to override the local backend.
+
+import 'dart:io';
 
 class AppConfig {
   static const String env = String.fromEnvironment('ENV', defaultValue: 'prod');
 
-   static const String _devBase = 'http://192.168.29.199:8090/bullionadmin';
-   static const String _prodBase = 'https://pme4lcrbfc.execute-api.us-east-1.amazonaws.com/dev';
+  static const String _devBase = 'http://66.116.246.40:8090/bullionadmin';
+  static const String _prodBase = 'http://localhost:8090/bullionadmin';
 
+  static String get _overrideBaseUrl => const String.fromEnvironment('API_BASE_URL', defaultValue: '');
+
+  // static String get _platformDevBase {
+  //  if (_overrideBaseUrl.isNotEmpty) return _overrideBaseUrl;
+  //  if (Platform.isAndroid) return 'http://66.116.246.40:8090/bullionadmin';
+  //  if (Platform.isIOS) return 'http://127.0.0.1:8090/bullionadmin';
+  //  return 'http://localhost:8090/bullionadmin';
+  // }
 
   static String get baseUrl => env == 'prod' ? _prodBase : _devBase;
 

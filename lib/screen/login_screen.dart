@@ -148,7 +148,7 @@ class _LoginScreenState extends State<LoginScreen> {
         type: '1',
         mobileno: mobileNumber,
         typename: 'Customer',
-        address: '',
+        address: [],
         identitytype: '',
         identityvalue: '',
         passwd: mobilepassword,

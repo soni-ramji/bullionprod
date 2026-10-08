@@ -1,3 +1,5 @@
+import 'package:bullionprod/model/CustomerAddressModel.dart';
+
 class CustomerSignup {
   int? id;
   String? name;
@@ -5,7 +7,7 @@ class CustomerSignup {
   String? type;
   String? mobileno;
   String? typename;
-  String? address;
+  List<Customeraddressmodel>? address;
   String? identitytype;
   String? identityvalue;
   String? passwd;
@@ -20,7 +22,9 @@ class CustomerSignup {
       type: json['type'],
       mobileno: json['mobileno'],
       typename: json['typename'],
-      address: json['address'],
+      address: (json['address'] as List<dynamic>?)
+          ?.map((e) => Customeraddressmodel.fromJson(e as Map<String, dynamic>))
+          .toList(),
       identitytype: json['identitytype'],
       identityvalue: json['identityvalue'],
       passwd: json['passwd'],
@@ -35,7 +39,7 @@ class CustomerSignup {
       'type': type,
       'mobileno': mobileno,
       'typename': typename,
-      'address': address,
+      'address': address?.map((e) => e.toJson()).toList(),
       'identitytype': identitytype,
       'identityvalue': identityvalue,
       'passwd': passwd,
