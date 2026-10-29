@@ -1,8 +1,12 @@
+import 'package:bullionprod/environment.dart';
 import 'package:bullionprod/main.dart';
 import 'package:bullionprod/model/CusomerSignupModel.dart';
 import 'package:bullionprod/model/CustomerLoginModel.dart';
+import 'package:bullionprod/screen/ChngePasswd.dart';
+import 'package:bullionprod/screen/bottombar.dart';
 
 import 'package:bullionprod/screen/home1.dart';
+import 'package:bullionprod/screen/selectedproduct.dart';
 import 'package:bullionprod/service/APIServices.dart';
 import 'package:flutter/material.dart';
 import 'package:logger/web.dart';
@@ -24,7 +28,7 @@ class _LoginScreenState extends State<LoginScreen> {
   final _formKey = GlobalKey<FormState>();
   int custId = -1;
   String errorText = '';
-  ApiService _apiService = ApiService();
+  final ApiService _apiService = ApiService();
 
   @override
   void initState() {
@@ -36,6 +40,13 @@ class _LoginScreenState extends State<LoginScreen> {
     return custId;
   }
 
+  Future<void> _showChangePasswordDialog() async {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (_) => const Chngepasswd()),
+    );
+  }
+
   @override
   //#007bff
   Widget build(BuildContext context) {
@@ -43,10 +54,9 @@ class _LoginScreenState extends State<LoginScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (custId != -1) {
         logger.d('Customer ID is $custId');
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (_) => const HomeScreen1()),
-        );
+        
+        logger.d("Customer Logged in");
+
       }
       // Or open a dialog / snackbar
     });
@@ -55,7 +65,6 @@ class _LoginScreenState extends State<LoginScreen> {
     String mobilepassword = '';
     String username = '';
     String tradename = '';
-    String userpassword = '';
 
     Future<void> validateUser() async {
        // get mobile number
@@ -77,7 +86,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
        int? customerId;
        const int maxAttempts = 2;
-       final timeout = const Duration(seconds: 15);
 
        for (int attempt = 1; attempt <= maxAttempts; attempt++) {
          logger.d('Login attempt $attempt');
@@ -96,8 +104,10 @@ class _LoginScreenState extends State<LoginScreen> {
        });
 
        if (customerId != null && customerId != -1) {
+         final validCustomerId = customerId;
          setState(() {
            hasError = false;
+           custId = validCustomerId;
          });
          logger.d('Customer ID is $customerId');
 
@@ -159,8 +169,10 @@ class _LoginScreenState extends State<LoginScreen> {
       if (!context.mounted) return;
 
       if (customerId != null && customerId != -1) {
+        final validCustomerId = customerId;
         setState(() {
           hasError = false;
+          custId = validCustomerId;
         });
         logger.d('Customer ID is $customerId');
 
@@ -180,6 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F2E8),
+      bottomNavigationBar: custId != -1 ? const Bottombar(selectedIndex: 0) : null,
       appBar: AppBar(
         backgroundColor: const Color(0xFF5C4300),
         foregroundColor: Colors.white,
@@ -231,204 +244,415 @@ class _LoginScreenState extends State<LoginScreen> {
               ),
             ),
           const SizedBox(height: 5),
-          Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // const Text(
-                //   'Login',
-                //   style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-                // ),
-                const SizedBox(height: 20),
-                if(isSignup)
-                Center(
-                  child: SizedBox(
-                    width: 300, // Set the desired width
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'Name',
-                        errorStyle: TextStyle(color: Colors.red, fontSize: 16),
+          if (custId != -1)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: Wrap(
+                spacing: 12,
+                runSpacing: 12,
+                alignment: WrapAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SelectedProduct()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF1F6FEB),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(170, 52),
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                      elevation: 4,
+                      shadowColor: Colors.blue.withValues(alpha: 0.35),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      keyboardType: TextInputType.text,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your name';
-                        } else {
-                          username = value;
-                        }
-                        return null;
-                      },
                     ),
+                    icon: const Icon(Icons.shopping_bag_outlined),
+                    label: const Text('Selected Items'),
                   ),
-                ),
-                if(isSignup)
-                const SizedBox(height: 20),
-                if(isSignup)
-                Center(
-                  child: SizedBox(
-                    width: 300, // Set the desired width
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'Trade Name',
-                        errorStyle: TextStyle(color: Colors.red, fontSize: 16),
+                  ElevatedButton.icon(
+                    onPressed: _showChangePasswordDialog,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF5C4300),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(190, 52),
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                      elevation: 4,
+                      shadowColor: const Color(0xFF5C4300).withValues(alpha: 0.35),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      keyboardType: TextInputType.text,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your trade name';
-                        } else {
-                          tradename = value;
-                        }
-                        return null;
-                      },
                     ),
+                    icon: const Icon(Icons.lock_reset),
+                    label: const Text('Change Password'),
                   ),
-                ),
-                if(isSignup)
-                const SizedBox(height: 20),
-                Center(
-                  child: SizedBox(
-                    width: 300, // Set the desired width
-                    child: TextFormField(
-                      decoration: const InputDecoration(
-                        labelText: 'Mobile Number',
-                        errorStyle: TextStyle(color: Colors.red, fontSize: 16),
+                  ElevatedButton.icon(
+                    onPressed: () async {
+                      await prefs.remove(AppConfig.CUSTOMERID);
+                      setState(() {
+                        prefs.setInt(AppConfig.CUSTOMERID, -1);
+                      });
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const HomeScreen1()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFD64545),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(155, 52),
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                      elevation: 4,
+                      shadowColor: Colors.red.withValues(alpha: 0.35),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
                       ),
-                      keyboardType: TextInputType.phone,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your mobile number';
-                        } else {
-                          mobileNumber = value;
-                        }
-                        return null;
-                      },
                     ),
+                    icon: const Icon(Icons.logout),
+                    label: const Text('Log Out'),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Center(
-                  child: SizedBox(
-                    width: 300, // Set the desired width
-                    child: TextFormField(
-                      decoration: InputDecoration(
-                        labelText: 'Password',
-                        errorStyle: const TextStyle(color: Colors.red, fontSize: 16),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _isObscured ? Icons.visibility_off : Icons.visibility,
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const SelectedProduct()),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFFFFA000),
+                      foregroundColor: Colors.white,
+                      minimumSize: const Size(140, 52),
+                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                      elevation: 4,
+                      shadowColor: Colors.orange.withValues(alpha: 0.35),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    icon: const Icon(Icons.history),
+                    label: const Text('History'),
+                  ),
+                ],
+              ),
+            )
+          else
+            Form(
+              key: _formKey,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 20),
+                  if (isSignup)
+                    Center(
+                      child: SizedBox(
+                        width: 300,
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'Name',
+                            filled: true,
+                            fillColor: Colors.white,
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            errorStyle: const TextStyle(color: Colors.red, fontSize: 16),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide: const BorderSide(color: Color(0xFFD9C7A3), width: 1.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide: const BorderSide(color: Color(0xFF5C4300), width: 1.5),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide: const BorderSide(color: Colors.red, width: 1.0),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                            ),
                           ),
-                          onPressed: () {
-                            setState(() {
-                              _isObscured = !_isObscured;
-                            });
+                          keyboardType: TextInputType.text,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your name';
+                            } else {
+                              username = value;
+                            }
+                            return null;
                           },
-                        )
+                        ),
                       ),
-                      obscureText: _isObscured,
-                      keyboardType: TextInputType.text,
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return 'Please enter your password';
-                        } else {
-                          mobilepassword = value;
-                        }
-                        return null;
-                      },
+                    ),
+                  if (isSignup) const SizedBox(height: 20),
+                  if (isSignup)
+                    Center(
+                      child: SizedBox(
+                        width: 300,
+                        child: TextFormField(
+                          decoration: InputDecoration(
+                            labelText: 'Shop Name',
+                            filled: true,
+                            fillColor: Colors.white,
+                            isDense: true,
+                            contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                            errorStyle: const TextStyle(color: Colors.red, fontSize: 16),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                            ),
+                            enabledBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide: const BorderSide(color: Color(0xFFD9C7A3), width: 1.0),
+                            ),
+                            focusedBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide: const BorderSide(color: Color(0xFF5C4300), width: 1.5),
+                            ),
+                            errorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide: const BorderSide(color: Colors.red, width: 1.0),
+                            ),
+                            focusedErrorBorder: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(20.0),
+                              borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                            ),
+                          ),
+                          keyboardType: TextInputType.text,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return 'Please enter your shop name';
+                            } else {
+                              tradename = value;
+                            }
+                            return null;
+                          },
+                        ),
+                      ),
+                    ),
+                  if (isSignup) const SizedBox(height: 20),
+                  Center(
+                    child: SizedBox(
+                      width: 300,
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Mobile Number',
+                          hintText: 'Enter your mobile number',
+                          filled: true,
+                          fillColor: Colors.white,
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: const BorderSide(color: Color(0xFFD9C7A3), width: 1.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: const BorderSide(color: Color(0xFF5C4300), width: 1.5),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: const BorderSide(color: Colors.red, width: 1.0),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                          ),
+                        ),
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your mobile number';
+                          } else {
+                            mobileNumber = value;
+                          }
+                          return null;
+                        },
+                      ),
+
+                      // child: TextFormField(
+                      //   decoration: InputDecoration(
+                      //     labelText: 'Enter your text',
+                      //     hintText: 'Type something...',
+                      //     // The base border design
+                      //     border: OutlineInputBorder(
+                      //       borderRadius: BorderRadius.circular(20.0),
+                      //     ),
+                      //     // Border design when the field is active but not focused
+                      //     enabledBorder: OutlineInputBorder(
+                      //       borderRadius: BorderRadius.circular(20.0),
+                      //       borderSide: const BorderSide(color: Colors.grey, width: 1.0),
+                      //     ),
+                      //     // Border design when the user clicks/taps into the field
+                      //     focusedBorder: OutlineInputBorder(
+                      //       borderRadius: BorderRadius.circular(20.0),
+                      //       borderSide: const BorderSide(color: Colors.blue, width: 2.0),
+                      //     ),
+                      //     // Border design when validation fails
+                      //     errorBorder: OutlineInputBorder(
+                      //       borderRadius: BorderRadius.circular(20.0),
+                      //       borderSide: const BorderSide(color: Colors.red, width: 1.0),
+                      //     ),
+                      //     focusedErrorBorder: OutlineInputBorder(
+                      //       borderRadius: BorderRadius.circular(20.0),
+                      //       borderSide: const BorderSide(color: Colors.red, width: 2.0),
+                      //     ),
+                      //   ),
+                      // )
                     ),
                   ),
-                ),
-                const SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    if(!isSignup)
-                    _isLoggingIn
-                        ? const SizedBox(
-                            width: 120,
-                            height: 40,
-                            child: Center(child: CircularProgressIndicator()),
-                          )
-                        : ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.blue, // Sets background to blue
-                              foregroundColor: Colors.white, // Sets text and icon color to white
+                  const SizedBox(height: 20),
+                  Center(
+                    child: SizedBox(
+                      width: 300,
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          labelText: 'Password',
+                          filled: true,
+                          fillColor: Colors.white,
+                          isDense: true,
+                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: const BorderSide(color: Color(0xFFD9C7A3), width: 1.0),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: const BorderSide(color: Color(0xFF5C4300), width: 1.5),
+                          ),
+                          errorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: const BorderSide(color: Colors.red, width: 1.0),
+                          ),
+                          focusedErrorBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: const BorderSide(color: Colors.red, width: 1.5),
+                          ),
+                          errorStyle: const TextStyle(color: Colors.red, fontSize: 16),
+                          suffixIcon: IconButton(
+                            icon: Icon(
+                              _isObscured ? Icons.visibility_off : Icons.visibility,
                             ),
                             onPressed: () {
-                              if (_formKey.currentState!.validate()) {
-                                // Process the login
-                                logger.d('Login button pressed');
-                                validateUser();
-                              }
+                              setState(() {
+                                _isObscured = !_isObscured;
+                              });
                             },
-                            child: const Text('Login'),
                           ),
-                    const SizedBox(width: 20),
-                    if(!isSignup)
-                    Center(
-                      child: new InkWell(
-                          child: new Text('Sign Up',
-                          style: TextStyle(color: Colors.red),
-                          ),
-                          onTap: () => {
+                        ),
+                        obscureText: _isObscured,
+                        keyboardType: TextInputType.text,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please enter your password';
+                          } else {
+                            mobilepassword = value;
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (!isSignup)
+                        _isLoggingIn
+                            ? const SizedBox(
+                                width: 120,
+                                height: 40,
+                                child: Center(child: CircularProgressIndicator()),
+                              )
+                            : ElevatedButton(
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: const Color(0xFF1F6FEB),
+                                  foregroundColor: Colors.white,
+                                  minimumSize: const Size(140, 48),
+                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                                  elevation: 4,
+                                  shadowColor: Colors.blue.withValues(alpha: 0.35),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(20),
+                                  ),
+                                ),
+                                onPressed: () {
+                                  if (_formKey.currentState!.validate()) {
+                                    logger.d('Login button pressed');
+                                    validateUser();
+                                  }
+                                },
+                                child: const Text('Login'),
+                              ),
+                      const SizedBox(width: 20),
+                      if (!isSignup)
+                        Center(
+                          child: InkWell(
+                            child: const Text(
+                              'Sign Up',
+                              style: TextStyle(color: Colors.red),
+                            ),
+                            onTap: () {
                               setState(() {
                                 isSignup = true;
-                              })
-      }
-
-
-                      ),
-
-                    ),
-                    if(isSignup)
-                    Center(
-                      child: new InkWell(
-                          child: new Text('Login'),
-                          onTap: () => {
-                            setState(() {
-                              isSignup = false;
-                            })
-                          }
-
-
-                      ),
-
-                    ),
-                    const SizedBox(width: 10),
-                    if(isSignup)
-                    ElevatedButton(
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.blue, // Sets background to blue
-                        foregroundColor: Colors.white, // Sets text and icon color to white
-                      ),
-                      onPressed: () {
-                        if (_formKey.currentState!.validate()) {
-                          // Process the login
-                          logger.d('Login button pressed');
-                          signup();
-                        }
-                      },
-                      child: const Text('Sign Up'
-                      , style: TextStyle(color: Colors.white),),
-                    ),
-                  ],
-                ),
-
-
-
-              ],
+                              });
+                            },
+                          ),
+                        ),
+                      if (isSignup)
+                        Center(
+                          child: InkWell(
+                            child: const Text('Login'),
+                            onTap: () {
+                              setState(() {
+                                isSignup = false;
+                              });
+                            },
+                          ),
+                        ),
+                      const SizedBox(width: 10),
+                      if (isSignup)
+                        ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1F6FEB),
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(140, 48),
+                            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+                            elevation: 4,
+                            shadowColor: Colors.blue.withValues(alpha: 0.35),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: () {
+                            if (_formKey.currentState!.validate()) {
+                              logger.d('Login button pressed');
+                              signup();
+                            }
+                          },
+                          child: const Text(
+                            'Sign Up',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
         ],
       ),
-      // floatingActionButton: FloatingActionButton(
-      //   onPressed: () {
-      //     // Handle the action for the floating action button
-      //     logger.d('Floating action button pressed');
-      //   },
-      //   child: const Icon(Icons.add),
-      // ),
+    
     );
   }
 }

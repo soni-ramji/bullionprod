@@ -2,15 +2,16 @@
 // Use `--dart-define=ENV=prod` when building for production.
 // Use `--dart-define=API_BASE_URL=http://10.0.2.2:8090/bullionadmin` to override the local backend.
 
-import 'dart:io';
+// ignore_for_file: non_constant_identifier_names
 
 class AppConfig {
-  static const String env = String.fromEnvironment('ENV', defaultValue: 'prod');
+  static const String env = String.fromEnvironment('ENV', defaultValue: 'dev');
 
   static const String _devBase = 'http://66.116.246.40:8090/bullionadmin';
   static const String _prodBase = 'http://localhost:8090/bullionadmin';
 
-  static String get _overrideBaseUrl => const String.fromEnvironment('API_BASE_URL', defaultValue: '');
+  static String get _overrideBaseUrl =>
+      const String.fromEnvironment('API_BASE_URL', defaultValue: '');
 
   // static String get _platformDevBase {
   //  if (_overrideBaseUrl.isNotEmpty) return _overrideBaseUrl;
@@ -19,7 +20,10 @@ class AppConfig {
   //  return 'http://localhost:8090/bullionadmin';
   // }
 
-  static String get baseUrl => env == 'prod' ? _prodBase : _devBase;
+  static String get baseUrl {
+    if (_overrideBaseUrl.isNotEmpty) return _overrideBaseUrl;
+    return env == 'prod' ? _prodBase : _devBase;
+  }
 
   // Endpoints
   static String get GET_CATEGORY => '$baseUrl/category/getcategories';
@@ -60,5 +64,11 @@ class AppConfig {
   static String get CUSTOMER_SIGNUP_DIO => '/customer/addmobilecustomer';
 
   static String get GET_COMMODITY_RATE_DIO => '/commodity/getcommoditiesrate';
+
+  static String get CUSTOMER_CHANGE_PASSWORD_DIO => '/customer/chngpasswd';
+
+  static String get CUSTOMERID=>'customerId';
+
+  static String get GET_BANNER_IMAGES=>'/banner/getbanner';
 
 }

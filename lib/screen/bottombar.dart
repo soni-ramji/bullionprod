@@ -1,4 +1,5 @@
 import 'package:bullionprod/app_shopping_state.dart';
+import 'package:bullionprod/screen/RateCalculator.dart';
 import 'package:bullionprod/screen/commodityrate.dart';
 import 'package:bullionprod/screen/contactus.dart';
 import 'package:bullionprod/screen/home.dart';
@@ -11,20 +12,22 @@ import 'package:logger/logger.dart';
 final logger = Logger();
 
 class Bottombar extends StatefulWidget {
-  const Bottombar({super.key});
+  final int selectedIndex;
+
+  const Bottombar({super.key, this.selectedIndex = 0});
 
   @override
   State<Bottombar> createState() => _BottombarState();
 }
 
 class _BottombarState extends State<Bottombar> {
-  int _selectedNavIndex = 0;
+  late int _selectedNavIndex;
   final AppShoppingState _shoppingState = AppShoppingState.instance;
 
   @override
   void initState() {
     super.initState();
-
+    _selectedNavIndex = widget.selectedIndex;
     _shoppingState.addListener(_onShoppingStateChanged);
   }
 
@@ -197,6 +200,9 @@ class _BottombarState extends State<Bottombar> {
   }
 
   Widget _buildBottomNavBar() {
+    const selectedColor = Color(0xFFD4AF37);
+    const unselectedColor = Color(0xFF9E9E9E);
+
     return Container(
       decoration: BoxDecoration(
         border: Border(top: BorderSide(color: Colors.grey[200]!)),
@@ -207,14 +213,18 @@ class _BottombarState extends State<Bottombar> {
         elevation: 0,
         type: BottomNavigationBarType.fixed,
         currentIndex: _selectedNavIndex,
-        selectedItemColor: const Color(0xFFD4AF37),
-        unselectedItemColor: Colors.grey[400],
-        selectedLabelStyle: const TextStyle(fontSize: 9),
-        unselectedLabelStyle: const TextStyle(fontSize: 9),
-        iconSize: 20,
+        selectedItemColor: selectedColor,
+        unselectedItemColor: unselectedColor,
+        selectedIconTheme: const IconThemeData(color: selectedColor, size: 22),
+        unselectedIconTheme: const IconThemeData(color: unselectedColor, size: 22),
+        selectedLabelStyle: const TextStyle(fontSize: 9, color: selectedColor),
+        unselectedLabelStyle: const TextStyle(fontSize: 9, color: unselectedColor),
+        iconSize: 22,
         selectedFontSize: 9,
         unselectedFontSize: 9,
         enableFeedback: false,
+        showSelectedLabels: true,
+        showUnselectedLabels: true,
         landscapeLayout: BottomNavigationBarLandscapeLayout.centered,
         onTap: (index) {
           logger.d('Selected index: $index');
@@ -244,14 +254,23 @@ class _BottombarState extends State<Bottombar> {
               MaterialPageRoute(builder: (context) => const LoginScreen()),
             );
           }
+
+          else if (index == 6) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Ratecalculator()),
+            );
+          }
         },
         items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.home_outlined),
+            icon: const Icon(Icons.home_outlined),
+            activeIcon: const Icon(Icons.home),
             label: 'HOME',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.rate_review),
+            icon: const Icon(Icons.trending_up_outlined),
+            activeIcon: const Icon(Icons.trending_up),
             label: 'Live Rate',
           ),
           BottomNavigationBarItem(
@@ -260,19 +279,26 @@ class _BottombarState extends State<Bottombar> {
             label: 'Cart',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.favorite_outline),
+            icon: const Icon(Icons.favorite_outline),
+            activeIcon: const Icon(Icons.favorite),
             label: 'WISHLIST',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.location_searching),
+            icon: const Icon(Icons.location_on_outlined),
+            activeIcon: const Icon(Icons.location_on),
             label: 'Contact US',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.account_circle_outlined),
+            icon: const Icon(Icons.account_circle_outlined),
+            activeIcon: const Icon(Icons.account_circle),
             label: 'ACCOUNT',
           ),
-        ],
-      ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.calculate_outlined),
+            activeIcon: const Icon(Icons.calculate),
+            label: 'Calculator',
+          ),
+        ],      ),
     );
   }
 

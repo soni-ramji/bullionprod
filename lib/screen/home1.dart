@@ -4,6 +4,7 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:bullionprod/main.dart';
+import 'package:bullionprod/model/BannerOut.dart';
 
 import 'package:bullionprod/screen/ProductSearchScreen.dart';
 import 'package:bullionprod/service/APIServices.dart';
@@ -33,6 +34,8 @@ class HomeScreen1 extends StatefulWidget {
 
 class _HomeScreen1State extends State<HomeScreen1> {
   List<ProductModel> allproducts = [];
+
+  List<Bannerout> allBanners = [];
   List<ProductModel> filteredProducts = [];
   final AppShoppingState _shoppingState = AppShoppingState.instance;
   List<CategoryModel> allcategories = [];
@@ -59,7 +62,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
   }
 
   Future<void> _loadHomeData() async {
-    await Future.wait<void>([getAllCategory(), gerAllProducts()]);
+    await Future.wait<void>([getAllCategory(), gerAllProducts(), getAllBanner()]);
   }
 
   @override
@@ -83,7 +86,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
       String url = AppConfig.GET_PRODUCTS;
 
       ApiService _apiService = ApiService();
-      allProductss =await _apiService.getAllProductCached();
+      allProductss =await _apiService.gerAllProducts();
 
 
 
@@ -95,6 +98,26 @@ class _HomeScreen1State extends State<HomeScreen1> {
 
           log('allProductss is ${allproducts.length}');
         });
+  }
+
+  Future<void> getAllBanner() async {
+
+    if (mounted) setState(() => _isLoadingProducts = true);
+    List<Bannerout> allBannerss = [];
+    String url = AppConfig.GET_BANNER_IMAGES;
+
+    ApiService _apiService = ApiService();
+    allBannerss =await _apiService.getAllBanners();
+
+
+
+    if (!mounted) return;
+    setState(() {
+      allBanners = allBannerss;
+      _isLoadingProducts = false;
+
+      log('allBannerss is ${allBanners.length}');
+    });
   }
 
 
@@ -127,30 +150,21 @@ class _HomeScreen1State extends State<HomeScreen1> {
     });
   }
 
-  final List<Map<String, String>> products = [
-    {
-      'name': 'Eternal Glow Ring',
-      'price': '₹24,990',
-      'image': 'assets/ring1.png',
-    },
-    {
-      'name': 'Luna Pendant',
-      'price': '₹18,500',
-      'image': 'assets/pendant1.png',
-    },
-    {
-      'name': 'Radiant Drop Earrings',
-      'price': '₹16,750',
-      'image': 'assets/earrings1.png',
-    },
-  ];
 
-  final List<String> _bannerImages = const [
-    'https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1400&q=80',
-    'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1400&q=80',
-    'https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=1400&q=80',
-    'https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=1400&q=80',
-  ];
+
+  // final List<String> _bannerImages = const [
+  //   'https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1400&q=80',
+  //   'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1400&q=80',
+  //   'https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=1400&q=80',
+  //   'https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=1400&q=80',
+  // ];
+
+  // final List<String> _bannerImages = const [
+  //   '/Users/apple/Downloads/jewellerybanner.png',
+  //   'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1400&q=80',
+  //   'https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=1400&q=80',
+  //   'https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=1400&q=80',
+  // ];
 
   final List<String> _bannerImagesHeaderText = const [
     'Timeless Beauty',
@@ -237,7 +251,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
               ],
             ),
           ),
-          bottomNavigationBar: Bottombar(),
+          bottomNavigationBar: const Bottombar(selectedIndex: 0),
         );
       },
     );
@@ -259,80 +273,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
         child: _buildSearchBar1(),
       ),
       centerTitle: true,
-      // actions: [
-      //   Stack(
-      //     children: [
-      //       IconButton(
-      //         icon: Icon(
-      //           _shoppingState.favouriteCount > 0
-      //               ? Icons.favorite
-      //               : Icons.favorite_outline,
-      //           color: Colors.white,
-      //         ),
-      //         onPressed: _openFavouriteList,
-      //       ),
-      //       if (_shoppingState.favouriteCount > 0)
-      //         Positioned(
-      //           right: 6,
-      //           top: 6,
-      //           child: Container(
-      //             padding: const EdgeInsets.symmetric(
-      //               horizontal: 5,
-      //               vertical: 2,
-      //             ),
-      //             decoration: const BoxDecoration(
-      //               color: Colors.red,
-      //               shape: BoxShape.circle,
-      //             ),
-      //             child: Text(
-      //               '${_shoppingState.favouriteCount}',
-      //               style: const TextStyle(
-      //                 color: Colors.white,
-      //                 fontSize: 9,
-      //                 fontWeight: FontWeight.w700,
-      //               ),
-      //             ),
-      //           ),
-      //         ),
-      //     ],
-      //   ),
-      //   Stack(
-      //     children: [
-      //       IconButton(
-      //         icon: const Icon(
-      //           Icons.shopping_bag_outlined,
-      //           color: Colors.white,
-      //         ),
-      //         onPressed: _openCartList,
-      //       ),
-      //       Positioned(
-      //         right: 8,
-      //         top: 8,
-      //         child: Container(
-      //           padding: const EdgeInsets.all(4),
-      //           decoration: const BoxDecoration(
-      //             color: Color(0xFFD4AF37),
-      //             shape: BoxShape.circle,
-      //           ),
-      //           child: Text(
-      //             _shoppingState.cartCount.toString(),
-      //             style: TextStyle(
-      //               color: Colors.white,
-      //               fontSize: 10,
-      //               fontWeight: FontWeight.bold,
-      //             ),
-      //           ),
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      //   if (customerId != -1)
-      //     IconButton(
-      //       icon: const Icon(Icons.logout, color: Colors.white),
-      //       onPressed: _logout,
-      //       tooltip: 'Logout',
-      //     ),
-      // ],
+
     );
   }
 
@@ -363,18 +304,18 @@ class _HomeScreen1State extends State<HomeScreen1> {
   Widget _buildSearchBar1() {
     return Container(
       height: 46,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9F3E8),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFD4AF37), width: 1.4),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      // decoration: BoxDecoration(
+      //   color: const Color(0xFFF9F3E8),
+      //   borderRadius: BorderRadius.circular(14),
+      //   border: Border.all(color: const Color(0xFFD4AF37), width: 1.4),
+      //   boxShadow: [
+      //     BoxShadow(
+      //       color: Colors.black.withOpacity(0.08),
+      //       blurRadius: 8,
+      //       offset: const Offset(0, 2),
+      //     ),
+      //   ],
+      // ),
       child: TextField(
         controller: _searchController,
         onTap: _openProductSearchScreen,
@@ -390,10 +331,18 @@ class _HomeScreen1State extends State<HomeScreen1> {
             size: 20,
           ),
           filled: true,
-          fillColor: Colors.transparent,
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
+          fillColor: Color(0xFFF9F3E8),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(20.0), // Adjust the value for more/less roundness
+            ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            borderSide: BorderSide(color: Colors.grey, width: 1.0),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            borderSide: BorderSide(color: Colors.blue, width: 2.0),
+          ),
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
           isDense: true,
         ),
@@ -407,7 +356,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
         SizedBox(
           height: 280,
           child: PageView.builder(
-            itemCount: _bannerImages.length,
+            itemCount: allBanners.length,
             onPageChanged: (index) {
               setState(() => _currentBannerIndex = index);
             },
@@ -417,7 +366,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   image: DecorationImage(
-                    image: NetworkImage(_bannerImages[index]),
+                    image: NetworkImage(allBanners[index].bannerImage ?? ''),
                     fit: BoxFit.cover,
                   ),
                 ),
@@ -445,7 +394,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            _bannerImagesHeaderText[index],
+                            allBanners[index].bannerHeaderText ?? '',
                             style: TextStyle(
                               color: Color(0xFFD4AF37),
                               fontSize: 12,
@@ -455,7 +404,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            _bannerImagesHeading[index],
+                            allBanners[index].bannerImageHeading ?? '',
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w700,
@@ -465,7 +414,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            _bannerImagesHeadingBottom[index],
+                            allBanners[index].bannerImageBottom ?? '',
                             style: TextStyle(
                               fontSize: 14,
                               color: Colors.white70,
@@ -516,7 +465,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            for (int i = 0; i < _bannerImages.length; i++)
+            for (int i = 0; i < allBanners.length; i++)
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 6),
                 child: Container(

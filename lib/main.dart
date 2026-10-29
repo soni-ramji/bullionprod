@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:bullionprod/screen/RateCalculator.dart';
 import 'package:bullionprod/screen/SplashScreen.dart';
 import 'package:bullionprod/screen/contactus.dart';
 import 'package:bullionprod/screen/home.dart';
@@ -39,7 +40,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const Splashscreen(),
+      home: const HomeScreen1(),
 
     );
   }

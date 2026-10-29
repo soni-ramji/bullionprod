@@ -1,9 +1,11 @@
 import 'dart:convert';
 
 import 'package:bullionprod/environment.dart';
+import 'package:bullionprod/model/BannerOut.dart';
 import 'package:bullionprod/model/CategoryModel.dart';
 import 'package:bullionprod/model/CommodityRateModel.dart';
 import 'package:bullionprod/model/CusomerSignupModel.dart';
+import 'package:bullionprod/model/CustChngePasswdMdl.dart';
 import 'package:bullionprod/model/CustomerLoginModel.dart';
 import 'package:bullionprod/model/ProductModel.dart';
 import 'package:bullionprod/model/ProductSearchCriteria.dart';
@@ -20,7 +22,7 @@ class ApiService {
   List<CategoryModel>? _cachedCategories;
   List<ProductModel>? _cachedProduct;
 
-  Future<List<ProductModel>> getAllProductCached({bool forceRefresh = false}) async {
+  Future<List<ProductModel>> getAllProductCached({bool forceRefresh = true}) async {
     if (!forceRefresh && _cachedProduct != null && _cachedProduct!.isNotEmpty) {
       logger.d('ProductService: returning cached products (${_cachedProduct!.length})');
       return _cachedProduct!;
@@ -34,7 +36,7 @@ class ApiService {
 
   /// Returns cached categories if available, otherwise fetches from server and caches them.
   Future<List<CategoryModel>> getAllCategoryCached({
-    bool forceRefresh = false,
+    bool forceRefresh = true,
     required int? commodityId,
   }) async {
     if (!forceRefresh && _cachedCategories != null && _cachedCategories!.isNotEmpty) {
@@ -223,5 +225,47 @@ class ApiService {
       throw Exception('Network error: ${e.message}');
     }
     return null;
+  }
+
+  Future<bool?> custChangePassword(CustomerChangePasswordModel loginModel) async {
+    bool? changes = false;
+
+    final url = AppConfig.CUSTOMER_CHANGE_PASSWORD_DIO;
+    try {
+      String body = jsonEncode(loginModel);
+      final response = await _client.postWithRetry(url, data: body, receiveTimeout: const Duration(seconds: 60));
+
+      if (response.statusCode == 200) {
+        // Try to parse boolean from body or from a JSON field named 'changes'
+        final raw = response.data;
+        if (raw is bool) {
+          changes = raw;
+        }
+        return changes;
+      }
+    } on DioException catch (e) {
+      print(e.stackTrace);
+      throw Exception('Network error: ${e.message}');
+    }
+  }
+
+  Future<List<Bannerout>> getAllBanners() async {
+    try {
+
+      String url = AppConfig.GET_BANNER_IMAGES;
+
+      // String body = jsonEncode(subcatId);
+      final response = await _client.getWithRetry(url,  receiveTimeout: const Duration(seconds: 60));
+
+      if (response.statusCode == 200) {
+        List<dynamic> data = response.data;
+        return data.map((json) => Bannerout.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to getAllBanners: ${response.statusCode}');
+      }
+    } on DioException catch (e) {
+      print(e.stackTrace);
+      throw Exception('Network error: ${e.message}');
+    }
   }
 }

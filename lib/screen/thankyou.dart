@@ -43,7 +43,7 @@ class ThankYou extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      bottomNavigationBar: Bottombar(),
+      bottomNavigationBar: const Bottombar(selectedIndex: 2),
       body: SafeArea(
         child: Center(
           child: Padding(

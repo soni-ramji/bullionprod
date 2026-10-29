@@ -54,7 +54,7 @@ class ContactUs extends StatelessWidget {
         ),
         centerTitle: true,
       ),
-      bottomNavigationBar: Bottombar(),
+      bottomNavigationBar: const Bottombar(selectedIndex: 4),
       body: SafeArea(
         child: Stack(
           children: [

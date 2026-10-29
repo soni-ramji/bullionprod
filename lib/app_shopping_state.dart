@@ -16,19 +16,17 @@ class AppShoppingState extends ChangeNotifier {
   int get cartCount => _cart.length;
 
   String keyFor(ProductModel product) {
-    final id = product.id ?? '';
-    final name = product.prodname;
-    return '$id|$name';
+    return '${product.id}|${product.prodname}';
   }
 
   bool isFavourite(ProductModel product) {
     final key = keyFor(product);
-    return _favourites.any((item) => keyFor(product) == key);
+    return _favourites.any((item) => keyFor(item) == key);
   }
 
   void toggleFavourite(ProductModel product) {
     final key = keyFor(product);
-    final index = _favourites.indexWhere((item) => keyFor(product) == key);
+    final index = _favourites.indexWhere((item) => keyFor(item) == key);
     if (index >= 0) {
       _favourites.removeAt(index);
     } else {
@@ -51,7 +49,7 @@ class AppShoppingState extends ChangeNotifier {
   }
 
   void clearCart() {
-
     _cart.clear();
+    notifyListeners();
   }
 }

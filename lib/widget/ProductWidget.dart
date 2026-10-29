@@ -3,6 +3,7 @@ import 'dart:developer';
 
 import 'package:bullionprod/app_shopping_state.dart';
 import 'package:bullionprod/model/ProductModel.dart';
+import 'package:bullionprod/screen/ProdDescScreen.dart';
 import 'package:bullionprod/service/BullionUtil.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
@@ -37,94 +38,98 @@ class _ProductwidgetState extends State<Productwidget> {
   }
 
   void _openProductImageCarousel(ProductModel product) {
-    final imageUrls = product.imagepath
-        .where((url) => url.trim().isNotEmpty)
-        .toList(growable: false);
-
-    if (imageUrls.isEmpty) {
-      BullionUtil.showErrorSnackBar('No product images available.');
-      return;
-    }
-
-    final pageController = PageController(initialPage: 0);
-    int currentIndex = 0;
-
-    showDialog<void>(
-      context: context,
-      builder: (dialogContext) {
-        return StatefulBuilder(
-          builder: (context, setModalState) {
-            return Dialog(
-              backgroundColor: Colors.black87,
-              insetPadding: const EdgeInsets.all(12),
-              child: SizedBox(
-                width: double.infinity,
-                height: MediaQuery.of(context).size.height * 0.62,
-                child: Stack(
-                  children: [
-                    PageView.builder(
-                      controller: pageController,
-                      itemCount: imageUrls.length,
-                      onPageChanged: (index) {
-                        setModalState(() => currentIndex = index);
-                      },
-                      itemBuilder: (context, index) {
-                        return InteractiveViewer(
-                          child: Image.network(
-                            imageUrls[index],
-                            fit: BoxFit.cover,
-                            width: double.infinity,
-                            height: double.infinity,
-                            errorBuilder: (context, error, stackTrace) {
-                              return const Center(
-                                child: Icon(
-                                  Icons.broken_image,
-                                  color: Colors.white70,
-                                  size: 40,
-                                ),
-                              );
-                            },
-                          ),
-                        );
-                      },
-                    ),
-                    Positioned(
-                      top: 12,
-                      right: 12,
-                      child: IconButton(
-                        onPressed: () => Navigator.of(dialogContext).pop(),
-                        icon: const Icon(Icons.close, color: Colors.white),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 12,
-                      left: 0,
-                      right: 0,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: List.generate(imageUrls.length, (index) {
-                          return Container(
-                            width: currentIndex == index ? 16 : 8,
-                            height: 8,
-                            margin: const EdgeInsets.symmetric(horizontal: 4),
-                            decoration: BoxDecoration(
-                              color: currentIndex == index
-                                  ? const Color(0xFFD4AF37)
-                                  : Colors.white54,
-                              borderRadius: BorderRadius.circular(4),
-                            ),
-                          );
-                        }),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            );
-          },
-        );
-      },
-    ).then((_) => pageController.dispose());
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => Proddescscreen(productModel: product)),
+    );
+    // final imageUrls = product.imagepath
+    //     .where((url) => url.trim().isNotEmpty)
+    //     .toList(growable: false);
+    //
+    // if (imageUrls.isEmpty) {
+    //   BullionUtil.showErrorSnackBar('No product images available.');
+    //   return;
+    // }
+    //
+    // final pageController = PageController(initialPage: 0);
+    // int currentIndex = 0;
+    //
+    // showDialog<void>(
+    //   context: context,
+    //   builder: (dialogContext) {
+    //     return StatefulBuilder(
+    //       builder: (context, setModalState) {
+    //         return Dialog(
+    //           backgroundColor: Colors.black87,
+    //           insetPadding: const EdgeInsets.all(12),
+    //           child: SizedBox(
+    //             width: double.infinity,
+    //             height: MediaQuery.of(context).size.height * 0.62,
+    //             child: Stack(
+    //               children: [
+    //                 PageView.builder(
+    //                   controller: pageController,
+    //                   itemCount: imageUrls.length,
+    //                   onPageChanged: (index) {
+    //                     setModalState(() => currentIndex = index);
+    //                   },
+    //                   itemBuilder: (context, index) {
+    //                     return InteractiveViewer(
+    //                       child: Image.network(
+    //                         imageUrls[index],
+    //                         fit: BoxFit.cover,
+    //                         width: double.infinity,
+    //                         height: double.infinity,
+    //                         errorBuilder: (context, error, stackTrace) {
+    //                           return const Center(
+    //                             child: Icon(
+    //                               Icons.broken_image,
+    //                               color: Colors.white70,
+    //                               size: 40,
+    //                             ),
+    //                           );
+    //                         },
+    //                       ),
+    //                     );
+    //                   },
+    //                 ),
+    //                 Positioned(
+    //                   top: 12,
+    //                   right: 12,
+    //                   child: IconButton(
+    //                     onPressed: () => Navigator.of(dialogContext).pop(),
+    //                     icon: const Icon(Icons.close, color: Colors.white),
+    //                   ),
+    //                 ),
+    //                 Positioned(
+    //                   bottom: 12,
+    //                   left: 0,
+    //                   right: 0,
+    //                   child: Row(
+    //                     mainAxisAlignment: MainAxisAlignment.center,
+    //                     children: List.generate(imageUrls.length, (index) {
+    //                       return Container(
+    //                         width: currentIndex == index ? 16 : 8,
+    //                         height: 8,
+    //                         margin: const EdgeInsets.symmetric(horizontal: 4),
+    //                         decoration: BoxDecoration(
+    //                           color: currentIndex == index
+    //                               ? const Color(0xFFD4AF37)
+    //                               : Colors.white54,
+    //                           borderRadius: BorderRadius.circular(4),
+    //                         ),
+    //                       );
+    //                     }),
+    //                   ),
+    //                 ),
+    //               ],
+    //             ),
+    //           ),
+    //         );
+    //       },
+    //     );
+    //   },
+    // ).then((_) => pageController.dispose());
   }
   Widget _buildProductCard(ProductModel product) {
     log(product.imagepath[0]);

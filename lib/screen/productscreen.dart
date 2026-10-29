@@ -479,7 +479,7 @@ class _ProductScreenState extends State<ProductScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Bottombar(),
+      bottomNavigationBar: const Bottombar(selectedIndex: 0),
     );
   }
 

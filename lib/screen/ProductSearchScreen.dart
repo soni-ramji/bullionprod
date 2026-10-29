@@ -657,18 +657,18 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
   Widget _buildSearchBar1() {
     return Container(
       height: 46,
-      decoration: BoxDecoration(
-        color: const Color(0xFFF9F3E8),
-        borderRadius: BorderRadius.circular(14),
-        border: Border.all(color: const Color(0xFFD4AF37), width: 1.4),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
+      // decoration: BoxDecoration(
+      //   color: const Color(0xFFF9F3E8),
+      //   borderRadius: BorderRadius.circular(14),
+      //   border: Border.all(color: const Color(0xFFD4AF37), width: 1.4),
+      //   boxShadow: [
+      //     BoxShadow(
+      //       color: Colors.black.withOpacity(0.08),
+      //       blurRadius: 8,
+      //       offset: const Offset(0, 2),
+      //     ),
+      //   ],
+      // ),
 
       child: TextField(
         controller: _searchController,
@@ -680,8 +680,6 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
           _searchQuery = value;
           loadAllProducts();
         },
-        keyboardType: TextInputType.text,
-        textInputAction: TextInputAction.search,
         textAlignVertical: TextAlignVertical.center,
         style: const TextStyle(fontSize: 13, color: Color(0xFF2E2A28)),
         decoration: InputDecoration(
@@ -693,10 +691,18 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
             size: 20,
           ),
           filled: true,
-          fillColor: Colors.transparent,
-          border: InputBorder.none,
-          enabledBorder: InputBorder.none,
-          focusedBorder: InputBorder.none,
+          fillColor: Color(0xFFF9F3E8),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20.0), // Adjust the value for more/less roundness
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            borderSide: BorderSide(color: Colors.grey, width: 1.0),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(20.0),
+            borderSide: BorderSide(color: Colors.blue, width: 2.0),
+          ),
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
           isDense: true,
         ),
@@ -750,7 +756,7 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
           ),
         ),
       ),
-      bottomNavigationBar: Bottombar(),
+      bottomNavigationBar: const Bottombar(selectedIndex: 0),
     );
   }
 

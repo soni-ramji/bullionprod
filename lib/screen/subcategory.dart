@@ -372,6 +372,6 @@ class _SubCategoryScreenState extends State<SubCategoryScreen> {
   }
 
   Widget _buildBottomNavBar() {
-    return Bottombar();
+    return const Bottombar(selectedIndex: 0);
   }
 }
