@@ -49,16 +49,7 @@ class _CommodityrateState extends State<Commodityrate> {
     }
   }
 
-  //  Future<void> getCommodityRates() async {
-  //   // Simulate fetching commodity rates from an API or database
-  //   await Future.delayed(const Duration(seconds: 2));
-  //   setState(() {
-  //     gold24k = 142000;
-  //     gold22k = 130000;
-  //     gold18k = 110000;
-  //     silverrate = 60000; // Example silver rate
-  //   });
-  // }
+
   @override
   Widget build(BuildContext context) {
     const ink = Color(0xFF102D38);

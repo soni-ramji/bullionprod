@@ -55,8 +55,22 @@ class _RatecalculatorState extends State<Ratecalculator> {
   }
 
   void _calculateAmount() {
-    final karat = int.tryParse(_karatController.text) ?? _selectedKarat;
+    int karat = int.tryParse(_karatController.text) ?? _selectedKarat;
     final weight = double.tryParse(_weightController.text) ?? 0.0;
+
+    if (karat > 24) {
+      karat = 24;
+      _karatController.text = '24';
+      _karatController.selection = TextSelection.fromPosition(
+        const TextPosition(offset: '24'.length),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Karat cannot be greater than 24.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
 
     if (weight <= 0 || goldRate <= 0) {
       setState(() {
@@ -91,7 +105,7 @@ class _RatecalculatorState extends State<Ratecalculator> {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      bottomNavigationBar: const Bottombar(selectedIndex: 6),
+      bottomNavigationBar: const Bottombar(selectedIndex: 4),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -148,12 +162,12 @@ class _RatecalculatorState extends State<Ratecalculator> {
                         ],
                       ),
                     ),
-                    const SizedBox(height: 22),
+                    const SizedBox(height: 18),
                     const Text(
                       'Gold Jewellery Calculator',
                       textAlign: TextAlign.center,
                       style: TextStyle(
-                        fontSize: 28,
+                        fontSize: 25,
                         fontWeight: FontWeight.w800,
                         color: darkBrown,
                         letterSpacing: -0.5,
@@ -192,6 +206,7 @@ class _RatecalculatorState extends State<Ratecalculator> {
                                 setState(() {
                                   _selectedKarat = karat;
                                   _karatController.text = karat.toString();
+                                
                                 });
                               },
                               selectedColor: const Color(0xFF5C4300),
@@ -215,6 +230,16 @@ class _RatecalculatorState extends State<Ratecalculator> {
                       label: 'Karat',
                       icon: Icons.stars_rounded,
                       keyboardType: TextInputType.number,
+                      myreadonly: false,
+                      onTap: () {
+                        if (_amountController.text.isNotEmpty) {
+                          setState(() {
+                            _estimatedAmount = 0.0;
+                            _hasEstimate = false;
+                            _amountController.text = '0';
+                          });
+                        }
+                      },
                     ),
                     const SizedBox(height: 16),
                     _buildInputField(
@@ -222,6 +247,16 @@ class _RatecalculatorState extends State<Ratecalculator> {
                       label: 'Weight (in grams)',
                       icon: Icons.scale_rounded,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      myreadonly: false,
+                      onTap: () {
+                        if (_amountController.text.isNotEmpty) {
+                          setState(() {
+                            _estimatedAmount = 0.0;
+                            _hasEstimate = false;
+                            _amountController.text = '0';
+                          });
+                        }
+                      },
                     ),
                     const SizedBox(height: 16),
                     _buildInputField(
@@ -229,6 +264,7 @@ class _RatecalculatorState extends State<Ratecalculator> {
                       label: 'Amount',
                       icon: Icons.currency_rupee_rounded,
                       keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                      myreadonly: true,
                     ),
                     const SizedBox(height: 26),
                     ElevatedButton(
@@ -308,10 +344,14 @@ class _RatecalculatorState extends State<Ratecalculator> {
     required String label,
     required IconData icon,
     required TextInputType keyboardType,
+    VoidCallback? onTap,
+    required bool myreadonly ,
   }) {
     return TextField(
+      readOnly: myreadonly,
       controller: controller,
       keyboardType: keyboardType,
+      onTap: onTap,
       style: const TextStyle(fontSize: 16, color: Color(0xFF2D2418)),
       decoration: InputDecoration(
         filled: true,
@@ -320,15 +360,15 @@ class _RatecalculatorState extends State<Ratecalculator> {
         labelStyle: const TextStyle(color: Color(0xFF7A6A4D)),
         prefixIcon: Icon(icon, color: const Color(0xFF5C4300)),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(25),
           borderSide: const BorderSide(color: Color(0xFFE4D5A7)),
         ),
         enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(25),
           borderSide: const BorderSide(color: Color(0xFFE4D5A7)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(25),
           borderSide: const BorderSide(color: Color(0xFF5C4300), width: 1.5),
         ),
         contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 16),

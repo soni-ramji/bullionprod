@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:bullionprod/model/ProductModel.dart';
 import 'package:bullionprod/screen/bottombar.dart';
 import 'package:cached_network_image/cached_network_image.dart';
@@ -15,11 +17,48 @@ class Proddescscreen extends StatefulWidget {
 class _ProddescscreenState extends State<Proddescscreen> {
   final PageController _pageController = PageController();
   int _currentImageIndex = 0;
+  Timer? _imageAutoScrollTimer;
 
   ProductModel? get _product => widget.productModel;
 
   @override
+  void initState() {
+    super.initState();
+    _startImageAutoScroll();
+  }
+
+  void _startImageAutoScroll() {
+    _imageAutoScrollTimer?.cancel();
+    final imageUrls = _imageUrls();
+    if (imageUrls.length < 2) return;
+
+    if (_currentImageIndex >= imageUrls.length) {
+      _currentImageIndex = 0;
+    }
+
+    _imageAutoScrollTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!mounted) return;
+
+      final currentImageCount = _imageUrls().length;
+      if (currentImageCount < 2) return;
+
+      if (_currentImageIndex >= currentImageCount) {
+        _currentImageIndex = 0;
+      }
+
+      final nextIndex = (_currentImageIndex + 1) % currentImageCount;
+      _pageController.animateToPage(
+        nextIndex,
+        duration: const Duration(milliseconds: 900),
+        curve: Curves.easeInOut,
+      );
+      setState(() => _currentImageIndex = nextIndex);
+    });
+  }
+
+  @override
   void dispose() {
+    _imageAutoScrollTimer?.cancel();
     _pageController.dispose();
     super.dispose();
   }
@@ -90,7 +129,10 @@ class _ProddescscreenState extends State<Proddescscreen> {
                                       controller: _pageController,
                                       itemCount: imageUrls.length,
                                       onPageChanged: (index) {
-                                        setState(() => _currentImageIndex = index);
+                                        if (!mounted) return;
+                                        if (index < imageUrls.length) {
+                                          setState(() => _currentImageIndex = index);
+                                        }
                                       },
                                       itemBuilder: (context, index) {
                                         return ClipRRect(

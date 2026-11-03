@@ -192,7 +192,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8F2E8),
-      bottomNavigationBar: custId != -1 ? const Bottombar(selectedIndex: 0) : null,
+      bottomNavigationBar: custId != -1 ? const Bottombar(selectedIndex: 5) : null,
       appBar: AppBar(
         backgroundColor: const Color(0xFF5C4300),
         foregroundColor: Colors.white,
@@ -246,94 +246,110 @@ class _LoginScreenState extends State<LoginScreen> {
           const SizedBox(height: 5),
           if (custId != -1)
             Padding(
-              padding: const EdgeInsets.only(bottom: 20),
-              child: Wrap(
-                spacing: 12,
-                runSpacing: 12,
-                alignment: WrapAlignment.center,
+              padding: const EdgeInsets.only(bottom: 20, left: 16, right: 16),
+              child: Column(
                 children: [
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const SelectedProduct()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF1F6FEB),
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(170, 52),
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                      elevation: 4,
-                      shadowColor: Colors.blue.withValues(alpha: 0.35),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const SelectedProduct()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF1F6FEB),
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(170, 52),
+                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                            elevation: 4,
+                            shadowColor: Colors.blue.withValues(alpha: 0.35),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          icon: const Icon(Icons.shopping_bag_outlined),
+                          label: const Text('WishList'),
+                        ),
                       ),
-                    ),
-                    icon: const Icon(Icons.shopping_bag_outlined),
-                    label: const Text('Selected Items'),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: _showChangePasswordDialog,
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF5C4300),
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(190, 52),
+                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                            elevation: 4,
+                            shadowColor: const Color(0xFF5C4300).withValues(alpha: 0.35),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          icon: const Icon(Icons.lock_reset),
+                          label: const Text('Change Password'),
+                        ),
+                      ),
+                    ],
                   ),
-                  ElevatedButton.icon(
-                    onPressed: _showChangePasswordDialog,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF5C4300),
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(190, 52),
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                      elevation: 4,
-                      shadowColor: const Color(0xFF5C4300).withValues(alpha: 0.35),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () async {
+                            await prefs.remove(AppConfig.CUSTOMERID);
+                            setState(() {
+                              prefs.setInt(AppConfig.CUSTOMERID, -1);
+                            });
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const HomeScreen1()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFD64545),
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(155, 52),
+                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                            elevation: 4,
+                            shadowColor: Colors.red.withValues(alpha: 0.35),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          icon: const Icon(Icons.logout),
+                          label: const Text('Log Out'),
+                        ),
                       ),
-                    ),
-                    icon: const Icon(Icons.lock_reset),
-                    label: const Text('Change Password'),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () async {
-                      await prefs.remove(AppConfig.CUSTOMERID);
-                      setState(() {
-                        prefs.setInt(AppConfig.CUSTOMERID, -1);
-                      });
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const HomeScreen1()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFD64545),
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(155, 52),
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                      elevation: 4,
-                      shadowColor: Colors.red.withValues(alpha: 0.35),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (_) => const SelectedProduct()),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFFFFA000),
+                            foregroundColor: Colors.white,
+                            minimumSize: const Size(140, 52),
+                            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                            elevation: 4,
+                            shadowColor: Colors.orange.withValues(alpha: 0.35),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(14),
+                            ),
+                          ),
+                          icon: const Icon(Icons.history),
+                          label: const Text('Orders'),
+                        ),
                       ),
-                    ),
-                    icon: const Icon(Icons.logout),
-                    label: const Text('Log Out'),
-                  ),
-                  ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(builder: (_) => const SelectedProduct()),
-                      );
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFFFA000),
-                      foregroundColor: Colors.white,
-                      minimumSize: const Size(140, 52),
-                      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                      elevation: 4,
-                      shadowColor: Colors.orange.withValues(alpha: 0.35),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14),
-                      ),
-                    ),
-                    icon: const Icon(Icons.history),
-                    label: const Text('History'),
+                    ],
                   ),
                 ],
               ),
@@ -447,22 +463,22 @@ class _LoginScreenState extends State<LoginScreen> {
                           isDense: true,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(25.0),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(25.0),
                             borderSide: const BorderSide(color: Color(0xFFD9C7A3), width: 1.0),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(25.0),
                             borderSide: const BorderSide(color: Color(0xFF5C4300), width: 1.5),
                           ),
                           errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(25.0),
                             borderSide: const BorderSide(color: Colors.red, width: 1.0),
                           ),
                           focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(25.0),
                             borderSide: const BorderSide(color: Colors.red, width: 1.5),
                           ),
                         ),
@@ -477,35 +493,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         },
                       ),
 
-                      // child: TextFormField(
-                      //   decoration: InputDecoration(
-                      //     labelText: 'Enter your text',
-                      //     hintText: 'Type something...',
-                      //     // The base border design
-                      //     border: OutlineInputBorder(
-                      //       borderRadius: BorderRadius.circular(20.0),
-                      //     ),
-                      //     // Border design when the field is active but not focused
-                      //     enabledBorder: OutlineInputBorder(
-                      //       borderRadius: BorderRadius.circular(20.0),
-                      //       borderSide: const BorderSide(color: Colors.grey, width: 1.0),
-                      //     ),
-                      //     // Border design when the user clicks/taps into the field
-                      //     focusedBorder: OutlineInputBorder(
-                      //       borderRadius: BorderRadius.circular(20.0),
-                      //       borderSide: const BorderSide(color: Colors.blue, width: 2.0),
-                      //     ),
-                      //     // Border design when validation fails
-                      //     errorBorder: OutlineInputBorder(
-                      //       borderRadius: BorderRadius.circular(20.0),
-                      //       borderSide: const BorderSide(color: Colors.red, width: 1.0),
-                      //     ),
-                      //     focusedErrorBorder: OutlineInputBorder(
-                      //       borderRadius: BorderRadius.circular(20.0),
-                      //       borderSide: const BorderSide(color: Colors.red, width: 2.0),
-                      //     ),
-                      //   ),
-                      // )
+
                     ),
                   ),
                   const SizedBox(height: 20),
@@ -520,22 +508,22 @@ class _LoginScreenState extends State<LoginScreen> {
                           isDense: true,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(25.0),
                           ),
                           enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(25.0),
                             borderSide: const BorderSide(color: Color(0xFFD9C7A3), width: 1.0),
                           ),
                           focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(25.0),
                             borderSide: const BorderSide(color: Color(0xFF5C4300), width: 1.5),
                           ),
                           errorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(25.0),
                             borderSide: const BorderSide(color: Colors.red, width: 1.0),
                           ),
                           focusedErrorBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(20.0),
+                            borderRadius: BorderRadius.circular(25.0),
                             borderSide: const BorderSide(color: Colors.red, width: 1.5),
                           ),
                           errorStyle: const TextStyle(color: Colors.red, fontSize: 16),
@@ -631,7 +619,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             elevation: 4,
                             shadowColor: Colors.blue.withValues(alpha: 0.35),
                             shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
+                              borderRadius: BorderRadius.circular(25.0),
                             ),
                           ),
                           onPressed: () {

@@ -1,4 +1,5 @@
 
+import 'dart:async';
 import 'dart:developer';
 
 import 'package:bullionprod/app_shopping_state.dart';
@@ -8,6 +9,7 @@ import 'package:bullionprod/service/BullionUtil.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class Productwidget extends StatefulWidget {
 
@@ -22,6 +24,32 @@ class Productwidget extends StatefulWidget {
 class _ProductwidgetState extends State<Productwidget> {
 
   final AppShoppingState _shoppingState = AppShoppingState.instance;
+  final PageController _imagePageController = PageController();
+  Timer? _imageCarouselTimer;
+  int _currentImageIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _startImageCarousel();
+  }
+
+  @override
+  void didUpdateWidget(covariant Productwidget oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.productModel != widget.productModel) {
+      _currentImageIndex = 0;
+      _startImageCarousel();
+    }
+  }
+
+  @override
+  void dispose() {
+    _imageCarouselTimer?.cancel();
+    _imagePageController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return _buildProductCard(widget.productModel);
@@ -42,96 +70,40 @@ class _ProductwidgetState extends State<Productwidget> {
       context,
       MaterialPageRoute(builder: (context) => Proddescscreen(productModel: product)),
     );
-    // final imageUrls = product.imagepath
-    //     .where((url) => url.trim().isNotEmpty)
-    //     .toList(growable: false);
-    //
-    // if (imageUrls.isEmpty) {
-    //   BullionUtil.showErrorSnackBar('No product images available.');
-    //   return;
-    // }
-    //
-    // final pageController = PageController(initialPage: 0);
-    // int currentIndex = 0;
-    //
-    // showDialog<void>(
-    //   context: context,
-    //   builder: (dialogContext) {
-    //     return StatefulBuilder(
-    //       builder: (context, setModalState) {
-    //         return Dialog(
-    //           backgroundColor: Colors.black87,
-    //           insetPadding: const EdgeInsets.all(12),
-    //           child: SizedBox(
-    //             width: double.infinity,
-    //             height: MediaQuery.of(context).size.height * 0.62,
-    //             child: Stack(
-    //               children: [
-    //                 PageView.builder(
-    //                   controller: pageController,
-    //                   itemCount: imageUrls.length,
-    //                   onPageChanged: (index) {
-    //                     setModalState(() => currentIndex = index);
-    //                   },
-    //                   itemBuilder: (context, index) {
-    //                     return InteractiveViewer(
-    //                       child: Image.network(
-    //                         imageUrls[index],
-    //                         fit: BoxFit.cover,
-    //                         width: double.infinity,
-    //                         height: double.infinity,
-    //                         errorBuilder: (context, error, stackTrace) {
-    //                           return const Center(
-    //                             child: Icon(
-    //                               Icons.broken_image,
-    //                               color: Colors.white70,
-    //                               size: 40,
-    //                             ),
-    //                           );
-    //                         },
-    //                       ),
-    //                     );
-    //                   },
-    //                 ),
-    //                 Positioned(
-    //                   top: 12,
-    //                   right: 12,
-    //                   child: IconButton(
-    //                     onPressed: () => Navigator.of(dialogContext).pop(),
-    //                     icon: const Icon(Icons.close, color: Colors.white),
-    //                   ),
-    //                 ),
-    //                 Positioned(
-    //                   bottom: 12,
-    //                   left: 0,
-    //                   right: 0,
-    //                   child: Row(
-    //                     mainAxisAlignment: MainAxisAlignment.center,
-    //                     children: List.generate(imageUrls.length, (index) {
-    //                       return Container(
-    //                         width: currentIndex == index ? 16 : 8,
-    //                         height: 8,
-    //                         margin: const EdgeInsets.symmetric(horizontal: 4),
-    //                         decoration: BoxDecoration(
-    //                           color: currentIndex == index
-    //                               ? const Color(0xFFD4AF37)
-    //                               : Colors.white54,
-    //                           borderRadius: BorderRadius.circular(4),
-    //                         ),
-    //                       );
-    //                     }),
-    //                   ),
-    //                 ),
-    //               ],
-    //             ),
-    //           ),
-    //         );
-    //       },
-    //     );
-    //   },
-    // ).then((_) => pageController.dispose());
+
   }
+
+  void _startImageCarousel() {
+    _imageCarouselTimer?.cancel();
+    final imageUrls = widget.productModel.imagepath
+        .where((url) => url.trim().isNotEmpty)
+        .toList();
+    if (imageUrls.length < 2) return;
+
+    _imageCarouselTimer = Timer.periodic(const Duration(seconds: 5), (_) {
+      if (!mounted) return;
+
+      final nextIndex = (_currentImageIndex + 1) % imageUrls.length;
+      _imagePageController.animateToPage(
+        nextIndex,
+        duration: const Duration(milliseconds: 900),
+        curve: Curves.easeInOut,
+      );
+      setState(() => _currentImageIndex = nextIndex);
+    });
+  }
+
   Widget _buildProductCard(ProductModel product) {
+    final formattedPrice = NumberFormat.currency(
+      locale: 'en_IN',
+      symbol: '₹',
+      decimalDigits: 2,
+    ).format(product.productprice);
+
+    final imageUrls = product.imagepath
+        .where((url) => url.trim().isNotEmpty)
+        .toList();
+
     log(product.imagepath[0]);
     return Card(
       elevation: 5,
@@ -149,40 +121,37 @@ class _ProductwidgetState extends State<Productwidget> {
                 child: Stack(
                   children: [
                     Positioned.fill(
-                      child: product.imagepath.isNotEmpty
-                          ? CachedNetworkImage(
-                        imageUrl: product.imagepath[0],
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                        memCacheWidth: 190,
-                        placeholder: (context, url) => const Center(
-                          child: CircularProgressIndicator(
-                            strokeWidth: 1,
-                          ),
-                        ),
-                        errorWidget: (context, url, error) => const Icon(Icons.error),
-                      )
-                      // Image.network(
-                      //   product.imagepath[0],
-                      //   fit: BoxFit.cover,
-                      //   errorBuilder: (context, error, stackTrace) {
-                      //     return Container(
-                      //       color: Colors.grey[200],
-                      //       alignment: Alignment.center,
-                      //       child: _buildProductFallbackAvatar(
-                      //         product.prodname,
-                      //       ),
-                      //     );
-                      //   },
-                      // )
+                      child: imageUrls.isNotEmpty
+                          ? PageView.builder(
+                              controller: _imagePageController,
+                              itemCount: imageUrls.length,
+                              onPageChanged: (index) {
+                                if (!mounted) return;
+                                setState(() => _currentImageIndex = index);
+                              },
+                              itemBuilder: (context, index) {
+                                return CachedNetworkImage(
+                                  imageUrl: imageUrls[index],
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                  memCacheWidth: 190,
+                                  placeholder: (context, url) => const Center(
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 1,
+                                    ),
+                                  ),
+                                  errorWidget: (context, url, error) => const Icon(Icons.error),
+                                );
+                              },
+                            )
                           : Container(
-                        color: Colors.grey[200],
-                        alignment: Alignment.center,
-                        child: _buildProductFallbackAvatar(
-                          product.prodname,
-                        ),
-                      ),
+                              color: Colors.grey[200],
+                              alignment: Alignment.center,
+                              child: _buildProductFallbackAvatar(
+                                product.prodname,
+                              ),
+                            ),
                     ),
                     Positioned(
                       top: 8,
@@ -242,17 +211,34 @@ class _ProductwidgetState extends State<Productwidget> {
                       children: [
 
                         const SizedBox(height: 1),
-                        Text(
-                          product.prodname +
-                              '  ₹ ${product.productprice.toStringAsFixed(2)}',
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 14,
-                            fontWeight: FontWeight.w800,
-                            color: Color(0xFF4D3700),
-                            height: 1.2,
-                          ),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Expanded(
+                              child: Text(
+                                product.prodname,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.w800,
+                                  color: Color(0xFF4D3700),
+                                  height: 1.2,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            Text(
+                              formattedPrice,
+                              maxLines: 1,
+                              overflow: TextOverflow.visible,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: Color(0xFF5C4300),
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 6),
                         Row(
@@ -287,23 +273,23 @@ class _ProductwidgetState extends State<Productwidget> {
                           ),
                           child: Row(
                             children: [
-                              const Text(
-                                'AMNT',
-                                style: TextStyle(
-                                  fontSize: 9,
-                                  color: Color(0xFFFFE7A3),
-                                  fontWeight: FontWeight.w700,
-                                  letterSpacing: 0.6,
-                                ),
-                              ),
-                              const SizedBox(width: 8),
+                              // const Text(
+                              //   'AMNT',
+                              //   style: TextStyle(
+                              //     fontSize: 9,
+                              //     color: Color(0xFFFFE7A3),
+                              //     fontWeight: FontWeight.w700,
+                              //     letterSpacing: 0.6,
+                              //   ),
+                              // ),
+                              // const SizedBox(width: 8),
                               Expanded(
                                 child: Align(
-                                  alignment: Alignment.centerRight,
+                                  alignment: Alignment.centerLeft,
                                   child: Text(
-                                    '₹ ${product.productprice.toStringAsFixed(2)}',
+                                    formattedPrice,
                                     maxLines: 1,
-                                    overflow: TextOverflow.ellipsis,
+                                    //overflow: TextOverflow.ellipsis,
                                     style: const TextStyle(
                                       fontSize: 12,
                                       color: Colors.white,
@@ -350,7 +336,8 @@ class _ProductwidgetState extends State<Productwidget> {
 
   Widget _buildProductDetail({required String label, required String value}) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      constraints: const BoxConstraints(minHeight: 34),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(7),
@@ -358,23 +345,23 @@ class _ProductwidgetState extends State<Productwidget> {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Text(
             label,
             style: const TextStyle(
-              fontSize: 8,
+              fontSize: 7.5,
               color: Color(0xFF927328),
               fontWeight: FontWeight.w700,
               letterSpacing: 0.5,
             ),
           ),
-          const SizedBox(height: 1),
           Text(
             value,
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: const TextStyle(
-              fontSize: 11,
+              fontSize: 10.5,
               color: Color(0xFF4D3700),
               fontWeight: FontWeight.w800,
             ),

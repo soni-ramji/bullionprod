@@ -4,25 +4,22 @@ import 'dart:developer';
 import 'dart:io';
 
 import 'package:bullionprod/app_shopping_state.dart';
-import 'package:bullionprod/environment.dart';
+
 import 'package:bullionprod/model/ProductModel.dart';
 import 'package:bullionprod/model/ProductSearchCriteria.dart';
 import 'package:bullionprod/screen/bottombar.dart';
 import 'package:bullionprod/service/APIServices.dart';
-import 'package:bullionprod/service/BullionUtil.dart';
+
 import 'package:bullionprod/widget/ProductWidget.dart';
-import 'package:bullionprod/widget/breadcrumb.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+
 
 class ProductSearchScreen extends StatefulWidget {
   const ProductSearchScreen({super.key});
 
-  // final int subcategoryId;
-  // final String subcategoryName;
-  // final int categoryId;
-  // final String categoryName;
+
 
   @override
   State<ProductSearchScreen> createState() => _ProductSearchScreenState();
@@ -36,8 +33,23 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
   //List<Map<String, dynamic>> _products = <Map<String, dynamic>>[];
   final AppShoppingState _shoppingState = AppShoppingState.instance;
   final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   String _searchQuery = '';
-  int _selectedNavIndex = 1;
+
+  @override
+  void initState() {
+    super.initState();
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   FocusScope.of(context).requestFocus(_searchFocusNode);
+    // });
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    _searchFocusNode.dispose();
+    super.dispose();
+  }
 
   void loadAllProducts() {
     if (_searchController.text.isNotEmpty) {
@@ -147,21 +159,7 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
     );
   }
 
-  // List<Map<String, dynamic>> get _filteredProducts {
-  //   // final query = _searchQuery.trim().toLowerCase();
-  //   // if (query.isEmpty) return _products;
-  //   //
-  //   // return _products.where((item) {
-  //   //   final name = BullionUtil.readString(item, [
-  //   //     'prodname',
-  //   //     'productname',
-  //   //     'subcatName',
-  //   //     'name',
-  //   //   ]);
-  //   //   return name.toLowerCase().contains(query);
-  //   // }).toList();
-  //   return _products.toList();
-  // }
+
 
 
 
@@ -169,270 +167,6 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
     return _shoppingState.isFavourite(item);
   }
 
-  // Widget _buildProductCard(Map<String, dynamic> item) {
-  //   const ink = Color(0xFF102D38);
-  //   const gold = Color(0xFFD39743);
-  //   final name = BullionUtil.readString(item, ['prodname', 'name']);
-  //   final imageUrl = BullionUtil.readImageUrl(item);
-  //   // final karatPurity = BullionUtil.readDouble(item, [
-  //   //   'karatpurity',
-  //   //   'karatPurity',
-  //   // ]);
-  //   // final productWeight = BullionUtil.readDouble(item, [
-  //   //   'prodweight',
-  //   //   'productweight',
-  //   //   'productWeight',
-  //   //   'netweight',
-  //   //   'netWeight',
-  //   //   'grossweight',
-  //   //   'grossWeight',
-  //   //   'wt',
-  //   // ]);
-  //   // final productPrice = BullionUtil.readDouble(item, [
-  //   //   'productprice',
-  //   //   'productPrice',
-  //   //   'price',
-  //   //   'mrp',
-  //   //   'sellprice',
-  //   // ]);
-  //
-  //   // return Card(
-  //   //   elevation: 5,
-  //   //   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-  //   //   clipBehavior: Clip.antiAlias,
-  //   //   child: Column(
-  //   //     children: [
-  //   //       Expanded(
-  //   //         flex: 5,
-  //   //         child: MouseRegion(
-  //   //           cursor: SystemMouseCursors.click,
-  //   //           child: GestureDetector(
-  //   //             onTap: () => _openProductImageCarousel(item),
-  //   //             child: Stack(
-  //   //               children: [
-  //   //                 Positioned.fill(
-  //   //                   child: imageUrl.isNotEmpty
-  //   //                       ? Image.network(
-  //   //                           imageUrl,
-  //   //                           fit: BoxFit.cover,
-  //   //                           errorBuilder: (context, error, stackTrace) {
-  //   //                             return Container(
-  //   //                               color: Colors.grey[200],
-  //   //                               alignment: Alignment.center,
-  //   //                               child: _buildFallbackAvatar(name),
-  //   //                             );
-  //   //                           },
-  //   //                         )
-  //   //                       : Container(
-  //   //                           color: Colors.grey[200],
-  //   //                           alignment: Alignment.center,
-  //   //                           child: _buildFallbackAvatar(name),
-  //   //                         ),
-  //   //                 ),
-  //   //                 Positioned(
-  //   //                   top: 8,
-  //   //                   right: 8,
-  //   //                   child: GestureDetector(
-  //   //                     //onTap: () => _toggleFavourite(item),
-  //   //                     onTap: () => {},
-  //   //                     child: Container(
-  //   //                       padding: const EdgeInsets.all(6),
-  //   //                       decoration: BoxDecoration(
-  //   //                         color: Colors.white,
-  //   //                         shape: BoxShape.circle,
-  //   //                         boxShadow: [
-  //   //                           BoxShadow(
-  //   //                             color: Colors.black.withOpacity(0.12),
-  //   //                             blurRadius: 4,
-  //   //                           ),
-  //   //                         ],
-  //   //                       ),
-  //   //                       child: Icon(
-  //   //                         _isFavourite(item)
-  //   //                             ? Icons.favorite
-  //   //                             : Icons.favorite_outline,
-  //   //                         size: 14,
-  //   //                         color: _isFavourite(item)
-  //   //                             ? Colors.red
-  //   //                             : Colors.grey,
-  //   //                       ),
-  //   //                     ),
-  //   //                   ),
-  //   //                 ),
-  //   //               ],
-  //   //             ),
-  //   //           ),
-  //   //         ),
-  //   //       ),
-  //   //       Expanded(
-  //   //         flex: 4,
-  //   //         child: Container(
-  //   //           width: double.infinity,
-  //   //           padding: const EdgeInsets.fromLTRB(10, 9, 10, 10),
-  //   //           decoration: BoxDecoration(
-  //   //             color: const Color(0xFFFFFAEE),
-  //   //             border: Border(
-  //   //               top: BorderSide(color: const Color(0xFFE4C26A), width: 0.8),
-  //   //             ),
-  //   //           ),
-  //   //           child: Column(
-  //   //             crossAxisAlignment: CrossAxisAlignment.start,
-  //   //             children: [
-  //   //               // Top block: allow to take only needed space
-  //   //               Flexible(
-  //   //                 fit: FlexFit.loose,
-  //   //                 child: Column(
-  //   //                   crossAxisAlignment: CrossAxisAlignment.start,
-  //   //                   mainAxisSize: MainAxisSize.min,
-  //   //                   children: [
-  //   //                     // const Text(
-  //   //                     //   'PRODUCT NAME',
-  //   //                     //   style: TextStyle(
-  //   //                     //     fontSize: 8,
-  //   //                     //     color: Color(0xFF927328),
-  //   //                     //     fontWeight: FontWeight.w700,
-  //   //                     //     letterSpacing: 0.8,
-  //   //                     //   ),
-  //   //                     // ),
-  //   //                     const SizedBox(height: 2),
-  //   //                     Text(
-  //   //                       '$name - ₹ ${productPrice.toStringAsFixed(2)}',
-  //   //                       maxLines: 1,
-  //   //                       overflow: TextOverflow.ellipsis,
-  //   //                       style: const TextStyle(
-  //   //                         fontSize: 14,
-  //   //                         fontWeight: FontWeight.w800,
-  //   //                         color: Color(0xFF4D3700),
-  //   //                         height: 1.2,
-  //   //                       ),
-  //   //                     ),
-  //   //                     const SizedBox(height: 6),
-  //   //                     Row(
-  //   //                       children: [
-  //   //                         Expanded(
-  //   //                           child: _buildProductDetail(
-  //   //                             label: 'PURITY',
-  //   //                             value: '${karatPurity.toStringAsFixed(2)}K',
-  //   //                           ),
-  //   //                         ),
-  //   //                         const SizedBox(width: 6),
-  //   //                         Expanded(
-  //   //                           child: _buildProductDetail(
-  //   //                             label: 'WEIGHT',
-  //   //                             value: productWeight > 0
-  //   //                                 ? '${productWeight.toStringAsFixed(2)} g'
-  //   //                                 : '-',
-  //   //                           ),
-  //   //                         ),
-  //   //                       ],
-  //   //                     ),
-  //   //                     const SizedBox(height: 6),
-  //   //                     Container(
-  //   //                       width: double.infinity,
-  //   //                       padding: const EdgeInsets.symmetric(
-  //   //                         horizontal: 8,
-  //   //                         vertical: 6,
-  //   //                       ),
-  //   //                       decoration: BoxDecoration(
-  //   //                         color: const Color(0xFF5C4300),
-  //   //                         borderRadius: BorderRadius.circular(8),
-  //   //                       ),
-  //   //                       child: Row(
-  //   //                         children: [
-  //   //                           const Text(
-  //   //                             'AMNT',
-  //   //                             style: TextStyle(
-  //   //                               fontSize: 9,
-  //   //                               color: Color(0xFFFFE7A3),
-  //   //                               fontWeight: FontWeight.w700,
-  //   //                               letterSpacing: 0.6,
-  //   //                             ),
-  //   //                           ),
-  //   //                           const SizedBox(width: 8),
-  //   //                           Expanded(
-  //   //                             child: Text(
-  //   //                               '₹ ${productPrice.toStringAsFixed(2)}',
-  //   //                               maxLines: 1,
-  //   //                               overflow: TextOverflow.ellipsis,
-  //   //                               style: const TextStyle(
-  //   //                                 fontSize: 12,
-  //   //                                 color: Colors.white,
-  //   //                                 fontWeight: FontWeight.w800,
-  //   //                               ),
-  //   //                             ),
-  //   //                           ),
-  //   //
-  //   //                           const SizedBox(width: 8),
-  //   //                           Align(
-  //   //                             alignment: Alignment.centerRight,
-  //   //                             child: GestureDetector(
-  //   //                               onTap: () => _addToCart(item),
-  //   //                               child: const Icon(
-  //   //                                 Icons.shopping_bag_outlined,
-  //   //                                 size: 18,
-  //   //                                 color: Color(0xFFD4AF37),
-  //   //                               ),
-  //   //                             ),
-  //   //                           ),
-  //   //                         ],
-  //   //                       ),
-  //   //                     ),
-  //   //                   ],
-  //   //                 ),
-  //   //               ),
-  //   //
-  //   //               //Bottom block: fixed height to prevent overflow
-  //   //               // Container(
-  //   //               //   width: double.infinity,
-  //   //               //   padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-  //   //               //   decoration: BoxDecoration(
-  //   //               //     color: const Color(0xFF5C4300),
-  //   //               //     borderRadius: BorderRadius.circular(8),
-  //   //               //   ),
-  //   //               //   child: Row(
-  //   //               //     children: [
-  //   //               //       const Text(
-  //   //               //         'AMOUNT',
-  //   //               //         style: TextStyle(
-  //   //               //           fontSize: 9,
-  //   //               //           color: Color(0xFFFFE7A3),
-  //   //               //           fontWeight: FontWeight.w700,
-  //   //               //           letterSpacing: 0.6,
-  //   //               //         ),
-  //   //               //       ),
-  //   //               //       const Spacer(),
-  //   //               //       Flexible(
-  //   //               //         child: Text(
-  //   //               //           '₹ ${productPrice.toStringAsFixed(2)}',
-  //   //               //           maxLines: 1,
-  //   //               //           overflow: TextOverflow.ellipsis,
-  //   //               //           style: const TextStyle(
-  //   //               //             fontSize: 12,
-  //   //               //             color: Colors.white,
-  //   //               //             fontWeight: FontWeight.w800,
-  //   //               //           ),
-  //   //               //         ),
-  //   //               //       ),
-  //   //               //       const SizedBox(width: 6),
-  //   //               //       GestureDetector(
-  //   //               //         onTap: () => _addToCart(item),
-  //   //               //         child: const Icon(
-  //   //               //           Icons.shopping_bag_outlined,
-  //   //               //           size: 18,
-  //   //               //           color: Color(0xFFD4AF37),
-  //   //               //         ),
-  //   //               //       ),
-  //   //               //     ],
-  //   //               //   ),
-  //   //               // ),
-  //   //             ],
-  //   //           ),
-  //   //         ),
-  //   //       ),
-  //   //     ],
-  //   //   ),
-  //   // );
-  // }
 
   List<String> _readImageUrls(Map<String, dynamic> item) {
     final urls = <String>[];
@@ -672,6 +406,8 @@ class _ProductSearchScreenState extends State<ProductSearchScreen> {
 
       child: TextField(
         controller: _searchController,
+        focusNode: _searchFocusNode,
+        autofocus: true,
         onChanged: (value) {
           setState(() => _searchQuery = value);
         },

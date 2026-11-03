@@ -1,7 +1,7 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:bullionprod/main.dart';
 import 'package:bullionprod/model/BannerOut.dart';
@@ -49,6 +49,8 @@ class _HomeScreen1State extends State<HomeScreen1> {
   int _selectedNavIndex = 0;
   int _topPicksVisible = 4; // number of top picks to show initially
   final List<GlobalKey> _topPickKeys = []; // keys for each top-pick item to enable scrolling
+  final PageController _bannerController = PageController();
+  Timer? _bannerTimer;
 
   final TextEditingController _searchController = TextEditingController();
   late final Future<void> _homeDataFuture;
@@ -58,7 +60,25 @@ class _HomeScreen1State extends State<HomeScreen1> {
     super.initState();
     customerId = prefs.getInt("customerId") ?? -1;
     _shoppingState.addListener(_onShoppingStateChanged);
+    _scrollController.addListener(_onScrollToLoadMoreTopPicks);
     _homeDataFuture = _loadHomeData();
+  }
+
+  void _startBannerAutoScroll() {
+    _bannerTimer?.cancel();
+    if (allBanners.length < 2) return;
+
+    _bannerTimer = Timer.periodic(const Duration(seconds: 6), (_) {
+      if (!mounted) return;
+
+      final nextIndex = (_currentBannerIndex + 1) % allBanners.length;
+      _bannerController.animateToPage(
+        nextIndex,
+        duration: const Duration(milliseconds: 1800),
+        curve: Curves.easeInOutCubic,
+      );
+      setState(() => _currentBannerIndex = nextIndex);
+    });
   }
 
   Future<void> _loadHomeData() async {
@@ -67,7 +87,10 @@ class _HomeScreen1State extends State<HomeScreen1> {
 
   @override
   void dispose() {
+    _bannerTimer?.cancel();
     _shoppingState.removeListener(_onShoppingStateChanged);
+    _scrollController.removeListener(_onScrollToLoadMoreTopPicks);
+    _bannerController.dispose();
     _searchController.dispose();
     _scrollController.dispose();
     super.dispose();
@@ -75,6 +98,18 @@ class _HomeScreen1State extends State<HomeScreen1> {
 
   void _onShoppingStateChanged() {
     if (mounted) setState(() {});
+  }
+
+  void _onScrollToLoadMoreTopPicks() {
+    if (!mounted || filteredProducts.isEmpty) return;
+    if (_topPicksVisible >= filteredProducts.length) return;
+
+    final maxScroll = _scrollController.position.maxScrollExtent;
+    if (_scrollController.position.pixels >= maxScroll - 200) {
+      setState(() {
+        _topPicksVisible = (_topPicksVisible + 4).clamp(0, filteredProducts.length);
+      });
+    }
   }
 
 
@@ -94,6 +129,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
         setState(() {
           allproducts = allProductss;
           filteredProducts = allproducts;
+          _topPicksVisible = filteredProducts.length > 0 ? 4 : 0;
           _isLoadingProducts = false;
 
           log('allProductss is ${allproducts.length}');
@@ -115,9 +151,12 @@ class _HomeScreen1State extends State<HomeScreen1> {
     setState(() {
       allBanners = allBannerss;
       _isLoadingProducts = false;
-
       log('allBannerss is ${allBanners.length}');
     });
+
+    if (mounted) {
+      _startBannerAutoScroll();
+    }
   }
 
 
@@ -138,54 +177,11 @@ class _HomeScreen1State extends State<HomeScreen1> {
 
   }
 
-  void _showErrorSnackBar(String message) {
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final messenger = AppScaffoldMessenger.key.currentState;
-      if (messenger == null) return;
-      messenger
-        ..hideCurrentSnackBar()
-        ..showSnackBar(
-          SnackBar(content: Text(message), behavior: SnackBarBehavior.floating),
-        );
-    });
-  }
 
 
 
-  // final List<String> _bannerImages = const [
-  //   'https://images.unsplash.com/photo-1617038220319-276d3cfab638?auto=format&fit=crop&w=1400&q=80',
-  //   'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1400&q=80',
-  //   'https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=1400&q=80',
-  //   'https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=1400&q=80',
-  // ];
 
-  // final List<String> _bannerImages = const [
-  //   '/Users/apple/Downloads/jewellerybanner.png',
-  //   'https://images.unsplash.com/photo-1515562141207-7a88fb7ce338?auto=format&fit=crop&w=1400&q=80',
-  //   'https://images.unsplash.com/photo-1610375461246-83df859d849d?auto=format&fit=crop&w=1400&q=80',
-  //   'https://images.unsplash.com/photo-1601121141461-9d6647bca1ed?auto=format&fit=crop&w=1400&q=80',
-  // ];
 
-  final List<String> _bannerImagesHeaderText = const [
-    'Timeless Beauty',
-    'Timeless Beauty1',
-    'Timeless Beauty2',
-    'Timeless Beauty3',
-  ];
-
-  final List<String> _bannerImagesHeading = const [
-    'Shine in every moment',
-    'Embrace the elegance',
-    'Radiate your style',
-    'Capture the essence',
-  ];
-
-  final List<String> _bannerImagesHeadingBottom = const [
-    'exquisite designs crafted to celebrate you.',
-    'where elegance meets craftsmanship.',
-    'Radiate confidence with every piece.',
-    'Celebrate life\'s moments with timeless elegance.',
-  ];
 
   @override
   Widget build(BuildContext context) {
@@ -288,14 +284,6 @@ class _HomeScreen1State extends State<HomeScreen1> {
   }
 
 
-  bool _isFavourite(ProductModel product) {
-    return _shoppingState.isFavourite(product);
-  }
-
-  void _toggleFavourite(ProductModel product) {
-    _shoppingState.toggleFavourite(product);
-  }
-
 
 
 
@@ -304,18 +292,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
   Widget _buildSearchBar1() {
     return Container(
       height: 46,
-      // decoration: BoxDecoration(
-      //   color: const Color(0xFFF9F3E8),
-      //   borderRadius: BorderRadius.circular(14),
-      //   border: Border.all(color: const Color(0xFFD4AF37), width: 1.4),
-      //   boxShadow: [
-      //     BoxShadow(
-      //       color: Colors.black.withOpacity(0.08),
-      //       blurRadius: 8,
-      //       offset: const Offset(0, 2),
-      //     ),
-      //   ],
-      // ),
+
       child: TextField(
         controller: _searchController,
         onTap: _openProductSearchScreen,
@@ -333,14 +310,14 @@ class _HomeScreen1State extends State<HomeScreen1> {
           filled: true,
           fillColor: Color(0xFFF9F3E8),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20.0), // Adjust the value for more/less roundness
+              borderRadius: BorderRadius.circular(25.0), // Adjust the value for more/less roundness
             ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20.0),
+            borderRadius: BorderRadius.circular(25.0),
             borderSide: BorderSide(color: Colors.grey, width: 1.0),
           ),
           focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(20.0),
+            borderRadius: BorderRadius.circular(25.0),
             borderSide: BorderSide(color: Colors.blue, width: 2.0),
           ),
           contentPadding: const EdgeInsets.symmetric(vertical: 12),
@@ -354,15 +331,16 @@ class _HomeScreen1State extends State<HomeScreen1> {
     return Column(
       children: [
         SizedBox(
-          height: 280,
+          height: 230,
           child: PageView.builder(
+            controller: _bannerController,
             itemCount: allBanners.length,
             onPageChanged: (index) {
               setState(() => _currentBannerIndex = index);
             },
             itemBuilder: (context, index) {
               return Container(
-                margin: const EdgeInsets.all(16),
+                margin: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   image: DecorationImage(
@@ -396,7 +374,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
                           Text(
                             allBanners[index].bannerHeaderText ?? '',
                             style: TextStyle(
-                              color: Color(0xFFD4AF37),
+                              color: Colors.black,
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
                               letterSpacing: 2,
@@ -408,7 +386,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
                             style: TextStyle(
                               fontSize: 32,
                               fontWeight: FontWeight.w700,
-                              color: Colors.white,
+                              color: Color(0xFFD4AF37),
                               height: 1.2,
                             ),
                           ),
@@ -422,36 +400,7 @@ class _HomeScreen1State extends State<HomeScreen1> {
                             ),
                           ),
                           const SizedBox(height: 20),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.black87,
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: const Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                Text(
-                                  'SHOP NOW',
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 12,
-                                    fontWeight: FontWeight.bold,
-                                    letterSpacing: 1,
-                                  ),
-                                ),
-                                SizedBox(width: 8),
-                                Icon(
-                                  Icons.arrow_forward,
-                                  color: Colors.white,
-                                  size: 14,
-                                ),
-                              ],
-                            ),
-                          ),
+
                         ],
                       ),
                     ),
@@ -461,27 +410,27 @@ class _HomeScreen1State extends State<HomeScreen1> {
             },
           ),
         ),
-        const SizedBox(height: 16),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            for (int i = 0; i < allBanners.length; i++)
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6),
-                child: Container(
-                  width: i == _currentBannerIndex ? 20 : 8,
-                  height: 8,
-                  decoration: BoxDecoration(
-                    color: i == _currentBannerIndex
-                        ? Colors.black87
-                        : Colors.grey[300],
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                ),
-              ),
-          ],
-        ),
-        const SizedBox(height: 24),
+        // const SizedBox(height: 16),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.center,
+        //   children: [
+        //     for (int i = 0; i < allBanners.length; i++)
+        //       Padding(
+        //         padding: const EdgeInsets.symmetric(horizontal: 6),
+        //         child: Container(
+        //           width: i == _currentBannerIndex ? 20 : 8,
+        //           height: 8,
+        //           decoration: BoxDecoration(
+        //             color: i == _currentBannerIndex
+        //                 ? Colors.black87
+        //                 : Colors.grey[300],
+        //             borderRadius: BorderRadius.circular(4),
+        //           ),
+        //         ),
+        //       ),
+        //   ],
+        // ),
+        // const SizedBox(height: 24),
       ],
     );
   }
@@ -660,19 +609,19 @@ class _HomeScreen1State extends State<HomeScreen1> {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              const Text(
-                'TOP PICKS',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.w700,
-                  color: Colors.black87,
-                ),
-              ),
+              // const Text(
+              //   'TOP PICKS',
+              //   style: TextStyle(
+              //     fontSize: 18,
+              //     fontWeight: FontWeight.w700,
+              //     color: Colors.black87,
+              //   ),
+              // ),
               MouseRegion(
                 cursor: SystemMouseCursors.click,
                 child: GestureDetector(
@@ -739,62 +688,6 @@ class _HomeScreen1State extends State<HomeScreen1> {
                       );
                     }(),
 
-                    // View more button aligned bottom-right
-                    if (filteredProducts.length > _topPicksVisible)
-                      Padding(
-                        padding: const EdgeInsets.only(top: 8),
-                        child: Row(
-                          children: [
-                            const Spacer(),
-                            TextButton(
-                              onPressed: () {
-                                final previousVisible = _topPicksVisible;
-                                setState(() {
-                                  _topPicksVisible = (_topPicksVisible + 4).clamp(0, filteredProducts.length);
-                                });
-
-                                // after the frame renders the newly visible items, scroll to the first newly revealed item
-                                WidgetsBinding.instance.addPostFrameCallback((_) {
-                                  final firstNewIndex = previousVisible;
-                                  if (firstNewIndex < _topPickKeys.length) {
-                                    final keyContext = _topPickKeys[firstNewIndex].currentContext;
-                                    if (keyContext != null) {
-                                      Scrollable.ensureVisible(
-                                        keyContext,
-                                        duration: const Duration(milliseconds: 400),
-                                        curve: Curves.easeInOut,
-                                        alignment: 0.1,
-                                      );
-                                    } else {
-                                      // fallback: scroll to products section
-                                      final productsContext = _productsSectionKey.currentContext;
-                                      if (productsContext != null) {
-                                        Scrollable.ensureVisible(
-                                          productsContext,
-                                          duration: const Duration(milliseconds: 400),
-                                          curve: Curves.easeInOut,
-                                        );
-                                      }
-                                    }
-                                  }
-                                });
-                              },
-                              style: TextButton.styleFrom(
-                                foregroundColor: const Color(0xFF5C4300),
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                              ),
-                              child: const Row(
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Text('View more', style: TextStyle(fontWeight: FontWeight.w600)),
-                                  SizedBox(width: 6),
-                                  Icon(Icons.arrow_forward, size: 16),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
                   ],
                 ),
         ],

@@ -27,7 +27,7 @@ class _BottombarState extends State<Bottombar> {
   @override
   void initState() {
     super.initState();
-    _selectedNavIndex = widget.selectedIndex;
+    _selectedNavIndex = widget.selectedIndex.clamp(0, 5);
     _shoppingState.addListener(_onShoppingStateChanged);
   }
 
@@ -212,7 +212,7 @@ class _BottombarState extends State<Bottombar> {
         backgroundColor: const Color(0xFF5C4300),
         elevation: 0,
         type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedNavIndex,
+        currentIndex: _selectedNavIndex.clamp(0, 5),
         selectedItemColor: selectedColor,
         unselectedItemColor: unselectedColor,
         selectedIconTheme: const IconThemeData(color: selectedColor, size: 22),
@@ -231,9 +231,14 @@ class _BottombarState extends State<Bottombar> {
           setState(() => _selectedNavIndex = index);
 
           if (index == 0) {
-            Navigator.push(
+            // Navigator.pushAndRemoveUntil(
+            //   context,
+            //   MaterialPageRoute(builder: (context) => const HomeScreen1()),
+            // );
+            Navigator.pushAndRemoveUntil(
               context,
               MaterialPageRoute(builder: (context) => const HomeScreen1()),
+                  (Route<dynamic> route) => false, // This false predicate clears the entire stack
             );
           } else if (index == 1) {
             Navigator.push(
@@ -242,25 +247,27 @@ class _BottombarState extends State<Bottombar> {
             );
           } else if (index == 2) {
             _openCartList();
+          // } else if (index == 3) {
           } else if (index == 3) {
-          } else if (index == 4) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const ContactUs()),
             );
-          } else if (index == 5) {
+          }
+          else if (index == 4) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const Ratecalculator()),
+            );
+          }
+          else if (index == 5) {
             Navigator.push(
               context,
               MaterialPageRoute(builder: (context) => const LoginScreen()),
             );
           }
 
-          else if (index == 6) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const Ratecalculator()),
-            );
-          }
+
         },
         items: [
           BottomNavigationBarItem(
@@ -278,26 +285,27 @@ class _BottombarState extends State<Bottombar> {
             activeIcon: _buildCartNavIcon(selected: true),
             label: 'Cart',
           ),
-          BottomNavigationBarItem(
-            icon: const Icon(Icons.favorite_outline),
-            activeIcon: const Icon(Icons.favorite),
-            label: 'WISHLIST',
-          ),
+          // BottomNavigationBarItem(
+          //   icon: const Icon(Icons.favorite_outline),
+          //   activeIcon: const Icon(Icons.favorite),
+          //   label: 'WISHLIST',
+          // ),
           BottomNavigationBarItem(
             icon: const Icon(Icons.location_on_outlined),
             activeIcon: const Icon(Icons.location_on),
             label: 'Contact US',
           ),
           BottomNavigationBarItem(
-            icon: const Icon(Icons.account_circle_outlined),
-            activeIcon: const Icon(Icons.account_circle),
-            label: 'ACCOUNT',
-          ),
-          BottomNavigationBarItem(
             icon: const Icon(Icons.calculate_outlined),
             activeIcon: const Icon(Icons.calculate),
             label: 'Calculator',
           ),
+          BottomNavigationBarItem(
+            icon: const Icon(Icons.account_circle_outlined),
+            activeIcon: const Icon(Icons.account_circle),
+            label: 'ACCOUNT',
+          ),
+
         ],      ),
     );
   }
@@ -334,34 +342,5 @@ class _BottombarState extends State<Bottombar> {
     );
   }
 
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Container(
-  //     color: const Color(0xFF5C4300),
-  //     child: Column(
-  //       mainAxisSize: MainAxisSize.min,
-  //       children: [
-  //         _buildBottomNavBar(),
-  //         Padding(
-  //           padding: const EdgeInsets.only(bottom: 4, top: 2, right: 8),
-  //           child: Align(
-  //             alignment: Alignment.centerRight,
-  //             child: Text(
-  //               'THE TD Software : +91 8800634100',
-  //               maxLines: 1,
-  //               overflow: TextOverflow.ellipsis,
-  //               style: const TextStyle(
-  //                 fontSize: 9,
-  //                 color: Color(0xFFD4AF37),
-  //                 fontWeight: FontWeight.w600,
-  //                 letterSpacing: 0.2,
-  //               ),
-  //               textAlign: TextAlign.right,
-  //             ),
-  //           ),
-  //         ),
-  //       ],
-  //     ),
-  //   );
-  // }
+
 }
